@@ -19,3 +19,6 @@ The designs are the product (PRD §0). Everything below is something the app has
 | Dates are the real today, not "Wednesday Aug 12"; the current week's activities are placed relative to today | Seed | R69 — date-relative seed, live current week. |
 | SQLite via sql.js on web (and in tests), expo-sqlite on device | `src/db` | PRD §1 wants on-device SQLite; the critic drives the web build, so the same SQL runs there. |
 | Fixture 02 expected score revised 56 → 61 | `eval/golden/02…json`, `docs/build/FIXTURE_CHANGES.md` | Its arithmetic contradicted its own prose and R2. Recorded deliberately. |
+| **Proposed target change** card in chat (Not now / Set target) | Nora chat | R11a — a proposed target arrives as a change the user confirms, like a plan patch. |
+| Reschedule picker pages weeks (‹ ›) | Calendar activity sheet | R27 — any date, deterministic; also how a future guided session is brought to today and started. |
+| Demo failure toggles persist across reloads and reset with the demo resets | Settings | So a QA recipe survives a page reload without dead-ending onboarding. |

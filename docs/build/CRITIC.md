@@ -276,3 +276,22 @@ Driven on the web build at 390×844 on 2026-09-01 after the fix round, starting 
 | Onboarding · Plan generation: Fail persisted | With the flag persisted, the failed onboarding can only Retry into another failure — Settings is unreachable before the plan exists, so the demo is a dead end until storage is cleared. | A way out (Retry succeeds after N failures, or a demo escape on the failed screen). | R68 (demo) | P2 |
 | Nutrition · This week (empty week) | "-- g / -- / 0 / 0 PROTEIN DAYS HIT". | Dashes for the protein-days cell too. | R73 | P2 |
 | Nora · plain reply | "Last session was Upper body on **2026-09-01 (now)**" — raw ISO date and internal status token in prose (fake model). | Human date ("today") and no status token. | R47 | P2 |
+
+## Resolution log — round 2 (builder, 2026-09-01)
+
+| Finding | Resolution |
+|---|---|
+| FAIL · narration 14 g vs fallback 13 g | **Fixed.** The assembler rounded `avg_per_day` to two decimals before the model saw it (13.499 → 13.50 → 14). Raw aggregates are passed now; both surfaces round the same number once. |
+| P1 · Today hides the pending session when another is finished today | **Fixed.** The plan card prefers the session still to do. |
+| P1 · Preview says "4 training days." above three rows | **Fixed.** The preview summary counts the sessions kept for the rest of the week ("3 training days left this week (your full 4 from Sunday) · …"). |
+| P2 · View calendar lands on this week | **Fixed.** It opens the week the patch touched. |
+| P2 · Applied patch stacks Sprints on Fri with Upper body | **Fixed.** The seeded proposal moves Sprints Tue → Wed (an empty day). |
+| P2 · Row "Padel · Today / Today · 45 min" | **Accepted.** The prototype's own adhoc row reads exactly that (`day: 'Today'`, `sub: 'Today · 45 min · Moderate'`); the sheet no longer doubles it. |
+| P2 · Confirmed skip reads "Skipped · logged" | **Accepted.** R40 specifies that copy; the seeded "6 × 20 s" is a seed note on a pre-resolved row. |
+| P2 · Form video drops the rest countdown | **Fixed.** Rest is cached with the session. |
+| P2 · Persisted Plan-generation: Fail dead-ends onboarding | **Fixed.** Both demo resets restore the flags to OK. |
+| P2 · Empty-week "0 / 0 protein days" | **Fixed.** Dashes when no day is logged. |
+| P2 · Reply leaks "2026-09-01 (now)" | **Fixed.** The fake names the last resolved session without a raw date. |
+| P2 · Fresh training-load caption | **Fixed.** "No sessions in the last 14 days". |
+| P2 · Readiness chart spare space | **Accepted** — the box is the design's 72 px; the y-axis now spans the data. |
+| Added after round 2 | R11a target proposals: "Should I raise my protein target?" → **Proposed target change** card (Not now / Set target) → the accepted value persists as the user's target (`targetProposal.test.ts`). |
