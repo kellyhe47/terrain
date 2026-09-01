@@ -8,16 +8,21 @@
       "energy_1to5": 2
     },
     "yesterday_sessions": [],
-    "formula_note": "present weights sleep .25, energy .15 renormalize to .625/.375; sleep=75, energy=25; all other USER-LOGGABLE signals absent (weights redistributed). score=round(.625*75+.375*25)=round(56.25). Training load is never absent: with no sessions yesterday it scores 100 (full recovery, PRD R2) and is excluded from the reweighting only because it is not user-loggable."
+    "formula_note": "present weights sleep .25, energy .15 (of the .90 that the 8 user-loggable signals carry) renormalize to .5625/.3375; sleep=75, energy=25; all other USER-LOGGABLE signals absent (their weight redistributed among the present loggable signals). Training load is never absent and is never reweighted away: with no sessions yesterday it scores 100 (full recovery, PRD R2) and keeps its fixed .10. score=round(.5625*75+.3375*25+.10*100)=round(60.625)=61."
   },
   "expect": {
     "result_type": "readiness_score",
-    "score": 56,
+    "score": 61,
     "band": "yellow",
     "counts_universe": "reweighting spans the 8 user-loggable signals. Training load (R2's ninth) is derived from yesterday's sessions, has no log tile, and is never reweighted away — with no sessions it scores 100.",
     "render_properties": [
       "the screen is the ordinary Today screen — same layout, lower score, amber band",
       "no notice, banner or badge announces that signals are missing (PRD R4)"
     ]
+  },
+  "revision": {
+    "date": "2026-09-01",
+    "changed": "expect.score 56 → 61; formula_note arithmetic",
+    "why": "The original arithmetic dropped training load entirely (.625/.375 sum to 1 with no load term), contradicting this fixture's own prose ('never absent', 'never reweighted away'), PRD R2 ('always present') and fixture 01 (load carries .10). The rule implemented — the 8 loggable weights (.90) renormalize among the signals present; load keeps its fixed .10 — satisfies every sentence of the prose and reproduces fixture 01 exactly. Only the number changed. Band stays yellow."
   }
 }
