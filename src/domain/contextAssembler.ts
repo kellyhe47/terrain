@@ -20,7 +20,7 @@ import type { ReadinessResult } from './readiness';
 
 export class ModelOutputError extends Error { constructor(msg: string, public violations: string[] = []) { super(msg); this.name = 'ModelOutputError'; } }
 
-export function buildTextModel(cfg: AiConfig): TextModel { return cfg.openrouterKey ? new OpenRouterTextModel(cfg) : new FakeTextModel({ streamDelayMs: 18 }); }
+export function buildTextModel(cfg: AiConfig): TextModel { return cfg.openrouterKey ? new OpenRouterTextModel(cfg) : new FakeTextModel({ streamDelayMs: 18, latencyMs: 1400 }); }
 
 const SYSTEM = `You are Nora, Terrain's coach. Plain, supportive, nonjudgmental language. You never diagnose, prescribe treatment, or imply medical clearance; for concerning symptoms you refer the user to a qualified professional. Use only the context provided.`;
 

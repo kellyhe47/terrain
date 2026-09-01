@@ -6,7 +6,7 @@ import type { PlanPayload, ChatPayload, ExplanationPayload, GapsPayload, InjuryP
 import { addDays, DOW_LONG, dow } from '../domain/dates';
 
 export type FakeMode = 'ok' | 'error' | 'offline';
-export interface FakeOptions { streamDelayMs?: number; }
+export interface FakeOptions { streamDelayMs?: number; /** Simulated latency for non-streamed structured calls (plan, gaps), so locked/loading states are observable in the demo. */ latencyMs?: number; }
 
 export class FakeTextModel implements TextModel {
   readonly name = 'fake';
@@ -17,6 +17,7 @@ export class FakeTextModel implements TextModel {
 
   async complete(req: TextRequest, onToken?: (chunk: string) => void): Promise<TextResponse> {
     if (this.mode !== 'ok') throw new ModelUnavailableError(this.mode);
+    if (this.opts.latencyMs && (req.surface === 'plan' || req.surface === 'nutrition_gaps')) await new Promise((r) => setTimeout(r, this.opts.latencyMs));
     const p = req.payload ?? {};
     let json: unknown; let text = '';
     switch (req.surface) {
