@@ -1,6 +1,6 @@
 {
   "name": "readiness_missing_signals_reweight",
-  "why": "Partial logging must still produce a score by proportional reweighting, never by treating missing as zero.",
+  "why": "Partial logging must still produce a score by proportional reweighting, never by treating missing as zero. The reweighting is invisible to the user — the screen is the ordinary Today screen with a lower score.",
   "given": {
     "as_of": "2026-08-13T07:00:00-05:00",
     "signals_today": {
@@ -8,14 +8,16 @@
       "energy_1to5": 2
     },
     "yesterday_sessions": [],
-    "formula_note": "present weights sleep .25, energy .15 renormalize to .625/.375; sleep=75, energy=25; all other signals absent (weights redistributed). score=round(.625*75+.375*25)=round(56.25)"
+    "formula_note": "present weights sleep .25, energy .15 renormalize to .625/.375; sleep=75, energy=25; all other USER-LOGGABLE signals absent (weights redistributed). score=round(.625*75+.375*25)=round(56.25). Training load is never absent: with no sessions yesterday it scores 100 (full recovery, PRD R2) and is excluded from the reweighting only because it is not user-loggable."
   },
   "expect": {
     "result_type": "readiness_score",
     "score": 56,
     "band": "yellow",
-    "must_include": [
-      { "id": "missing_signal_notice", "reason": "UI notes which signals are unlogged and that logging them improves the score" }
+    "counts_universe": "reweighting spans the 8 user-loggable signals. Training load (R2's ninth) is derived from yesterday's sessions, has no log tile, and is never reweighted away — with no sessions it scores 100.",
+    "render_properties": [
+      "the screen is the ordinary Today screen — same layout, lower score, amber band",
+      "no notice, banner or badge announces that signals are missing (PRD R4)"
     ]
   }
 }

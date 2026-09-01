@@ -1,34 +1,47 @@
 {
   "name": "readiness_full_signals",
-  "why": "The readiness formula is deterministic and reproducible from all 9 logged signal types (rubric §1: friendly score + emoji + explanation).",
+  "why": "The readiness formula is deterministic and reproducible from a full set of logged signals. Every target is an input, so the same signals with different targets give a different score.",
   "given": {
     "as_of": "2026-08-12T07:00:00-05:00",
+    "units": "imperial (PRD §1) — body weight in pounds",
     "signals_today": {
       "sleep_hours": 7.5,
       "energy_1to5": 4,
       "soreness_1to5": 2,
       "stress_1to5": 2,
       "steps": 8500,
+      "steps_target": 10000,
       "hydration_liters": 2.0,
+      "hydration_target_liters": 2.5,
       "protein_g": 100,
       "protein_target_g": 120,
-      "weight_kg": 70.0,
-      "weight_7day_avg_kg": 70.2
+      "weight_lb": 154.5,
+      "weight_7day_avg_lb": 154.9
     },
     "yesterday_sessions": [
-      { "type": "gym", "status": "completed", "perceived_difficulty_1to5": 3 }
+      {
+        "type": "gym",
+        "status": "completed",
+        "perceived_difficulty_1to5": 3
+      }
     ],
-    "formula_note": "sleep=93.75(.25); energy=75(.15); sorenessInv=75(.15); stressInv=75(.10); load=100-5*1moderate=95(.10); steps=85(.10); hydration=80(.05); nutrition=83.33(.05); weight stable within 2% =100(.05). weighted sum=84.604"
+    "formula_note": "sleep=93.75(.25); energy=75(.15); sorenessInv=75(.15); stressInv=75(.10); load=100-5(one moderate session, difficulty 3)=95(.10); steps=85(.10); hydration=80(.05); nutrition=83.33(.05); weight stable within 2% =100(.05). weighted sum=84.604",
+    "note_protein_vs_ui": "This is the 07:00 snapshot. The app's Today nutrition card shows 86 g because it renders the in-progress day total at a later moment. The difference is load-bearing: substituting 86 gives 84.604 - 4.167 + 3.583 = 84.021, which rounds to 84, not the 85 the same screen displays. Seeding the demo from the screen's numbers will fail this fixture.",
+    "note_targets": "Targets are the demo user's own settings (PRD R11), supplied here as inputs. They are not product constants: the readiness service must read them rather than hard-code them, and a different user's targets change this fixture's expected score."
   },
   "expect": {
     "result_type": "readiness_score",
     "score": 85,
     "band": "green",
-    "emoji_band": "high",
+    "render_properties": [
+      "score and band arc render synchronously from the formula, before any network call",
+      "no emoji is rendered — the colored arc is the band cue (PRD R3)"
+    ],
     "explanation_properties": [
       "names at least two contributing signals",
       "plain language, no formula jargon",
-      "no prose string asserted (LLM-generated)"
+      "no prose string asserted (LLM-generated)",
+      "renders in three phases: shimmer -> token stream -> done (PRD R6)"
     ]
   }
 }

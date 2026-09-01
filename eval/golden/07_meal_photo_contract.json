@@ -1,22 +1,55 @@
 {
   "name": "meal_photo_contract",
-  "why": "Rubric §1: photo estimation returns an itemized, editable structure presented as estimates (MacroFactor pattern) — asserts the contract shape, never the model's food identifications.",
+  "why": "Runs a real photo through whatever provider sits behind the vision adapter and checks the result is usable. Deliberately asserts nothing about what the food IS — identifications vary by provider and by model version, and R63b requires the provider be swappable. What it does assert is arithmetic and structure, which any correct reading of any plate must satisfy.",
   "given": {
     "as_of": "2026-08-17T12:30:00-05:00",
-    "input": "any meal photo",
-    "vision_model": "cheapest vision-capable OpenAI tier"
+    "image": "assets/meal_chicken_and_rice.jpg",
+    "image_sha256": "ca0e47b0df5bbdd5e495d7b72d4b0369e8cd60ebfe4ceabc01bae8942cf039f9",
+    "image_notes": "554x554 JPEG, 61,758 bytes. A single plated main: a seared chicken breast over creamy rice. The same photo the app shows for its 'Chicken & rice' meal card, so the fixture and the demo agree.",
+    "provider": "pluggable behind the vision adapter (PRD R63b) — a multimodal model or a dedicated food-recognition API. Every assertion below must hold for any of them.",
+    "how_to_run": "Integration test: needs network and the vision provider credential. Record the response to replay the arithmetic checks offline; the plausibility checks need a live call to be meaningful."
   },
   "expect": {
     "result_type": "meal_estimate",
     "schema": {
-      "items": [ { "name": "string", "portion_estimate": "string", "calories_est": "number", "protein_g": "number", "carbs_g": "number", "fat_g": "number" } ],
-      "confidence": "low|medium|high",
-      "totals": "computed by the app from items, not taken from the model"
+      "items": [
+        {
+          "name": "non-empty string",
+          "portion_estimate": "non-empty string",
+          "calories_est": "number >= 0",
+          "protein_g": "number >= 0",
+          "carbs_g": "number >= 0",
+          "fat_g": "number >= 0"
+        }
+      ],
+      "confidence": "low|medium|high"
     },
-    "must_include": [
-      { "id": "estimate_label", "reason": "UI labels results as estimates, not measurements" },
-      { "id": "edit_before_save", "reason": "user can edit items/portions before the entry is saved" }
+    "structural": [
+      "items is a non-empty array; every item carries all six fields with the types above",
+      "2 <= item count <= 6 — the plate has at least two distinguishable components, and no correct reading fragments it past a handful",
+      "confidence is exactly one of the three enum values",
+      "a provider that omits carbs or fat is adapted to fill them, never passed through partial"
     ],
-    "must_not_contain": [ "auto-save without confirmation", "precision claims (e.g. '412 kcal exactly')" ]
+    "arithmetic": [
+      "meal totals equal the exact sum of item values — the app computes them and never reads totals from the provider's response, even when one is supplied",
+      "Atwater consistency per item: protein_g*4 + carbs_g*4 + fat_g*9 is within 25% of calories_est",
+      "Atwater consistency for the meal: the same sum across all items is within 15% of total calories",
+      "editing a portion rescales that item's four numbers proportionally and the totals follow"
+    ],
+    "plausibility": [
+      "total calories fall between 350 and 1100 — a single plated main, not a snack and not a banquet",
+      "total protein falls between 25 and 70 g — the plate is visibly protein-led",
+      "no item has all four macro values at zero"
+    ],
+    "not_asserted": [
+      "the name of any item — 'chicken breast', 'grilled chicken' and 'poultry' are all correct readings",
+      "any specific portion, calorie or macro figure",
+      "the number of items beyond the range above",
+      "the confidence level returned"
+    ],
+    "invariants": [
+      "the request carries image bytes and a fixed app-authored prompt only — no profile, signals, memory or history (PRD R63a)",
+      "nothing persists until the user saves; an abandoned sheet writes no meal"
+    ]
   }
 }

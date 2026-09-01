@@ -4,7 +4,7 @@
   "given": {
     "as_of": "2026-08-24T08:00:00-05:00",
     "history": [
-      { "date": "2026-08-19", "event": "chat", "content": "shoulder pain during overhead press", "stored_as": "injury_note: right shoulder, overhead pressing painful" }
+      { "date": "2026-08-19", "event": "chat", "content": "shoulder pain during overhead press", "stored_as": { "type": "injury", "text": "right shoulder, overhead pressing painful", "resolved": false } }
     ],
     "trigger": "weekly plan regeneration on 2026-08-24",
     "contraindicated_exercise_tags": [ "overhead_press" ]
@@ -15,8 +15,12 @@
       { "id": "exercises tagged overhead_press", "reason": "injury note from chat 5 days earlier persists in Nora's context" }
     ],
     "must_include": [
-      { "id": "injury_note in LLM planning context payload", "reason": "memory mechanism is inspectable, not vibes" },
+      { "id": "injury_note in LLM planning context payload", "reason": "memory mechanism is inspectable, not vibes — the entry is visible in 'What Nora knows' as a typed, dated INJURY row" },
       { "id": "unrelated lower-body exercises unchanged (control)", "reason": "adaptation is targeted, not a full random reshuffle" }
+    ],
+    "resolve_semantics": [
+      { "id": "resolved_injury_stops_contraindicating", "reason": "marking the entry Resolved in 'What Nora knows' greys it out and removes its tags from the next generation's rails; only injury entries are resolvable (PRD R46)" },
+      { "id": "deleted_entry_leaves_context_immediately", "reason": "deletion removes the entry from the next assembled payload with no regeneration required" }
     ]
   }
 }

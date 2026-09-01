@@ -1,28 +1,77 @@
 {
   "name": "plan_generation_constraints",
-  "why": "Rubric §2: Nora's plan must respect intake constraints (injury, availability, recurring preference) — enforced by deterministic schema/rail validation of the LLM's structured output, not by trusting prose.",
+  "why": "Rubric §2: Nora's plan must respect intake constraints (injury, availability, recurring preference) — enforced by deterministic schema/rail validation of the LLM's structured output, not by trusting prose. Mirrors the onboarding prototype's 'Your first week' preview.",
   "given": {
     "as_of": "2026-08-17T08:00:00-05:00",
     "intake": {
       "goal": "build strength, stay lean",
       "days_available_per_week": 4,
+      "minutes_per_session": 45,
       "equipment": "commercial gym",
-      "injuries": [ { "area": "right knee", "note": "no deep squatting or jumping" } ],
-      "recurring_preferences": [ { "activity": "run", "detail": "3 miles", "frequency": "weekly", "preferred_day": "Saturday" } ]
+      "injuries": [
+        {
+          "area": "right knee",
+          "note": "no deep squatting or jumping"
+        }
+      ],
+      "recurring_preferences": [
+        {
+          "activity": "run",
+          "detail": "3 miles",
+          "frequency": "weekly",
+          "preferred_day": "Saturday"
+        }
+      ]
     },
-    "contraindicated_exercise_tags": [ "deep_squat", "plyometric_jump" ]
+    "contraindicated_exercise_tags": [
+      "deep_squat",
+      "plyometric_jump"
+    ]
   },
   "expect": {
     "result_type": "weekly_plan",
     "schema_valid": true,
     "counts_universe": "sessions in the generated week",
-    "counts": { "training_days_max": 4, "saturday_run_3mi": 1 },
+    "counts": {
+      "training_days_max": 4,
+      "saturday_run_3mi": 1,
+      "total_scheduled_activities": 5
+    },
     "must_exclude": [
-      { "id": "exercises tagged deep_squat or plyometric_jump", "reason": "knee injury from intake" }
+      {
+        "id": "exercises tagged deep_squat or plyometric_jump",
+        "reason": "knee injury from intake"
+      }
     ],
     "must_include": [
-      { "id": "warmup+main+cooldown in every gym session", "reason": "rubric §4" },
-      { "id": "youtube_url per gym exercise", "reason": "rubric §4 demonstration links" }
+      {
+        "id": "warmup+main+cooldown in every gym session",
+        "reason": "rubric §4"
+      },
+      {
+        "id": "warmup as a phase-tagged exercise in the same list",
+        "reason": "the player renders phase as a label on the exercise, not a separate screen (PRD R19)"
+      },
+      {
+        "id": "form_video_url per gym exercise",
+        "reason": "rubric §4 demonstration links; the URL comes from the seed exercise library, never from the LLM (PRD R20/R22)"
+      },
+      {
+        "id": "nora_cue per gym exercise",
+        "reason": "the player shows one instruction line per exercise (PRD R20)"
+      },
+      {
+        "id": "recurring_preferences_excluded_from_training_day_count",
+        "reason": "the kept Saturday run is a standing activity, not a prescribed training day — 4 training days + 1 kept run = 5 scheduled activities (PRD R18a)"
+      },
+      {
+        "id": "session_length_is_derived",
+        "reason": "the number of exercises in a session is an output of generation, varying with minutes_per_session, goal and equipment — never a fixed count. Any UI string quoting a count reads it from the session it points to (PRD R6a, R24a)."
+      },
+      {
+        "id": "source_vocabulary",
+        "reason": "every activity carries a source: 'nora' (a prescribed training day, counted against days_available_per_week), 'trainee_adhoc' (user-added), or 'standing_preference' (a kept recurring activity, excluded from the count). The 4-training-days-plus-1-kept-run split is unimplementable without the third value (PRD R24b, R18a)."
+      }
     ]
   }
 }
