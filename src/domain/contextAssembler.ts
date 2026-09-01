@@ -114,7 +114,7 @@ export class ContextAssembler {
     };
     const req: TextRequest = {
       surface: 'chat', payload: payload as unknown as Record<string, unknown>,
-      system: SYSTEM + ` Reply as JSON. memory_writes: durable facts the user shared (type injury|preference|context). plan_patch: only when the user asks to change the schedule, with ops that move week_plan activities by id or swap an exercise id. safety: set flagged=true for any concerning symptom (chest pain, dizziness, fainting, numbness, breathing trouble); a flagged reply must recommend a qualified professional (referral=true), name no diagnosis (no_diagnosis=true), never clear the user (no_clearance=true), and set action to pause next_intense_session. ${violations.length ? 'Previous attempt violated: ' + violations.join('; ') : ''}`,
+      system: SYSTEM + ` Reply as JSON. memory_writes: durable facts the user shared (type injury|preference|context). plan_patch: only when the user asks to change the schedule, with ops that move week_plan activities by id or swap an exercise id. target_proposal: only when the user asks about a fitness or nutrition target — propose a value from the goal, training load and history; never state it as already set. safety: set flagged=true for any concerning symptom (chest pain, dizziness, fainting, numbness, breathing trouble); a flagged reply must recommend a qualified professional (referral=true), name no diagnosis (no_diagnosis=true), never clear the user (no_clearance=true), and set action to pause next_intense_session. ${violations.length ? 'Previous attempt violated: ' + violations.join('; ') : ''}`,
       user: this.render(payload as unknown as Record<string, unknown>), jsonSchema: { name: 'nora_chat_reply', schema: CHAT_JSON_SCHEMA as unknown as Record<string, unknown> },
     };
     const res = await this.model.complete(req);
@@ -135,7 +135,7 @@ export class ContextAssembler {
   // ---------- 4. nutrition-gap narration (R72)
   async narrateGaps(gaps: Gaps14, asOf: string): Promise<GapsNarration> {
     const payload: GapsPayload = { ...this.base(asOf), gaps: { days: gaps.days, logged_days: gaps.loggedDays,
-      ranked: gaps.ranked.map((g) => ({ key: g.key, label: g.label, unit: g.unit, avg_per_day: +g.avgPerDay.toFixed(2), target: g.target, ratio: +g.ratio.toFixed(2), ceiling: g.ceiling })),
+      ranked: gaps.ranked.map((g) => ({ key: g.key, label: g.label, unit: g.unit, avg_per_day: g.avgPerDay, target: g.target, ratio: g.ratio, ceiling: g.ceiling })),
       on_track: gaps.onTrack.map((g) => g.key), supplements: gaps.supplementCoverage.map((s) => ({ name: s.name, nutrient_key: s.nutrientKey, adherence: +s.adherence.toFixed(2) })) } };
     const req: TextRequest = { surface: 'nutrition_gaps', payload: payload as unknown as Record<string, unknown>, system: SYSTEM + ' Narrate the ranked nutrient gaps as JSON: for each, a name, a short stat and a plain-language note on cause and fix; then one summary line. A nutrient covered by a daily supplement is excluded or narrated as covered.', user: this.render(payload as unknown as Record<string, unknown>), jsonSchema: { name: 'nutrition_gaps', schema: GAPS_JSON_SCHEMA as unknown as Record<string, unknown> } };
     const res = await this.model.complete(req);

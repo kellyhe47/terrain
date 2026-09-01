@@ -55,7 +55,7 @@ export function ProgressScreen() {
   const loadMax = Math.max(0, ...data.load.map((d) => d.load));
   const loadNonZero = data.load.filter((d) => d.load > 0);
   const loadMean = loadNonZero.length ? loadNonZero.reduce((a, d) => a + d.load, 0) / loadNonZero.length : 0;
-  const loadStatus = loadMax <= 1.5 * loadMean ? 'Peaks in range — no overload risk' : 'Heavy stretch — watch recovery';
+  const loadStatus = loadMax === 0 ? 'No sessions in the last 14 days' : loadMax <= 1.5 * loadMean ? 'Peaks in range — no overload risk' : 'Heavy stretch — watch recovery';
 
   return (
     <View style={{ flex: 1, backgroundColor: color.bg }}>

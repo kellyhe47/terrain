@@ -14,7 +14,7 @@ import { Icon } from '../ui/icons';
 import { StatusBarFake } from '../ui/frame';
 import { media } from '../ui/assets';
 
-const sessionCache = new Map<string, { idx: number; done: Record<string, boolean>; vals: Record<string, { w: number; r: number }>; elapsed: number }>();
+const sessionCache = new Map<string, { idx: number; done: Record<string, boolean>; vals: Record<string, { w: number; r: number }>; elapsed: number; rest: number }>();
 import { EndSheet, ExitSheet, fmtClock } from './player/sheets';
 
 const PHASE_LABEL: Record<Phase, string> = { warmup: 'Warm-up', main: 'Main', cooldown: 'Cooldown' };
@@ -33,10 +33,10 @@ export function GymPlayerScreen({ activityId }: { activityId: string }) {
   const [idx, setIdx] = useState(cached?.idx ?? 0);
   const [done, setDone] = useState<Record<string, boolean>>(cached?.done ?? {});
   const [vals, setVals] = useState<Record<string, { w: number; r: number }>>(cached?.vals ?? {});
-  const [rest, setRest] = useState(0);
+  const [rest, setRest] = useState(cached?.rest ?? 0);
   const [elapsed, setElapsed] = useState(cached?.elapsed ?? 0);
   // Keep the in-progress session in a module cache so pushing the Form video screen (which unmounts this one) never resets it (R20/R31).
-  useEffect(() => { sessionCache.set(activityId, { idx, done, vals, elapsed }); }, [activityId, idx, done, vals, elapsed]);
+  useEffect(() => { sessionCache.set(activityId, { idx, done, vals, elapsed, rest }); }, [activityId, idx, done, vals, elapsed, rest]);
   const [panel, setPanel] = useState(false);
   const [sheet, setSheet] = useState<null | 'exit' | 'end'>(null);
 

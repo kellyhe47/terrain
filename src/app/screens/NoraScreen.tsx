@@ -85,7 +85,8 @@ export function NoraScreen() {
         {history.map((m) => (
           <React.Fragment key={m.id}>
             {m.role === 'user' ? <UserBubble text={m.text} /> : m.text ? <NoraBubble text={m.text} /> : null}
-            {m.role === 'nora' && m.card?.kind === 'patch' ? <PatchCard card={m.card} onApply={() => onApply(m)} onDecline={() => onDecline(m)} onReconsider={() => onReconsider(m)} onViewCalendar={() => nav.setTab('calendar')} /> : null}
+            {m.role === 'nora' && m.card?.kind === 'patch' ? <PatchCard card={m.card} onApply={() => onApply(m)} onDecline={() => onDecline(m)} onReconsider={() => onReconsider(m)} onViewCalendar={() => { (globalThis as { __terrainCalendarDate?: string }).__terrainCalendarDate = m.card?.ops?.find((o) => o.op === 'move')?.to_date; nav.setTab('calendar'); }} /> : null}
+            {m.role === 'nora' && m.card?.kind === 'target' ? <TargetCard card={m.card} onApply={() => { const r = t.chat.applyTarget(m.id); bump(); showToast(r.toast); }} onDecline={() => onDecline(m)} onReconsider={() => onReconsider(m)} /> : null}
             {m.role === 'nora' && m.card?.kind === 'safety' ? <SafetyCard card={m.card} onPause={() => onPause(m)} onKeep={() => onKeep(m)} /> : null}
           </React.Fragment>
         ))}
@@ -181,6 +182,36 @@ function PatchCard({ card, onApply, onDecline, onReconsider, onViewCalendar }: {
       {state === 'declined' ? (
         <View style={{ borderTopWidth: 1, borderColor: color.border, paddingVertical: 10, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
           <Small c={color.text3} size={12} lh={16}>Not applied — plan unchanged.</Small>
+          <Pressable accessibilityRole="button" onPress={onReconsider} hitSlop={6}><Semi c={color.orange} size={12} lh={16}>Reconsider</Semi></Pressable>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+/** R11a: a proposed target is a change the user confirms, rendered like a plan patch. */
+function TargetCard({ card, onApply, onDecline, onReconsider }: { card: ChatCard; onApply: () => void; onDecline: () => void; onReconsider: () => void }) {
+  const state = card.state;
+  const head = state === 'applied' ? 'Target · updated' : state === 'declined' ? 'Target · not changed' : 'Proposed target change';
+  const headColor = state === 'applied' ? color.green : state === 'declined' ? color.text3 : color.orange;
+  const border = state === 'applied' ? color.green : state === 'proposed' ? color.orange : color.border;
+  return (
+    <View style={[bubble.card, { borderColor: border }]} accessibilityLabel={head}>
+      <CardHead label={head} c={headColor} check={state === 'applied'} />
+      <View style={{ paddingVertical: 12, paddingHorizontal: 14, gap: 8 }}>
+        {card.items.map((it, i) => <View key={i} style={{ flexDirection: 'row', gap: 8 }}><Body c={color.orange} size={13} lh={19}>→</Body><Body size={13} lh={19} style={{ flex: 1 }}>{it}</Body></View>)}
+        <Tiny c={color.text3} size={11} lh={15}>Your target, not mine — nothing changes until you confirm.</Tiny>
+      </View>
+      {state === 'proposed' ? (
+        <View style={{ flexDirection: 'row', borderTopWidth: 1, borderColor: color.border }}>
+          <FootBtn label="Not now" onPress={onDecline} bg="transparent" pressBg={color.surface2} c={color.text3} />
+          <FootBtn label="Set target" onPress={onApply} bg={color.orange} pressBg={color.orangeHover} c={color.textOnOrange} left />
+        </View>
+      ) : null}
+      {state === 'applied' ? <View style={{ borderTopWidth: 1, borderColor: color.border, paddingVertical: 10, paddingHorizontal: 14 }}><Small c={color.green} size={12} lh={16}>{card.appliedNote}</Small></View> : null}
+      {state === 'declined' ? (
+        <View style={{ borderTopWidth: 1, borderColor: color.border, paddingVertical: 10, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+          <Small c={color.text3} size={12} lh={16}>Not changed — target as it was.</Small>
           <Pressable accessibilityRole="button" onPress={onReconsider} hitSlop={6}><Semi c={color.orange} size={12} lh={16}>Reconsider</Semi></Pressable>
         </View>
       ) : null}

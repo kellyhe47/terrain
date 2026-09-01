@@ -54,12 +54,13 @@ export interface PersonalRecord { id: string; activity: string; kind: PRKind; re
 
 export type CardState = 'proposed' | 'applied' | 'declined' | 'paused' | 'kept';
 export interface ChatCard {
-  kind: 'patch' | 'safety';
+  kind: 'patch' | 'safety' | 'target';
   state: CardState;
   title?: string;
   items: string[];         // itemized moves / the safety question
   ops?: PatchOp[];
   targetActivityId?: string; // safety: session to pause
+  target?: { key: TargetKey; value: number }; // target proposal (R11a)
   appliedNote?: string;
 }
 export interface ChatMessage { id: string; role: 'user' | 'nora'; text: string; card: ChatCard | null; createdAt: string; }

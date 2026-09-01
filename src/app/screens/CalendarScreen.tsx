@@ -33,7 +33,7 @@ export function CalendarScreen() {
   const [monthSel, setMonthSel] = useState<ISODate | null>(null);
   const [sheet, setSheet] = useState<SheetState>(null);
   // Log grid's Activity tile (R7) lands here with the Add sheet open.
-  useEffect(() => { const g = globalThis as { __terrainOpenAdd?: boolean }; if (g.__terrainOpenAdd) { delete g.__terrainOpenAdd; setSheet({ kind: 'add' }); } }, []);
+  useEffect(() => { const g = globalThis as { __terrainOpenAdd?: boolean; __terrainCalendarDate?: string }; if (g.__terrainOpenAdd) { delete g.__terrainOpenAdd; setSheet({ kind: 'add' }); } if (g.__terrainCalendarDate) { setWs(weekStart(g.__terrainCalendarDate)); delete g.__terrainCalendarDate; } }, []);
   const [generating, setGenerating] = useState(false);
 
   const targets = t.repo.getTargets();
@@ -180,7 +180,7 @@ export function CalendarScreen() {
             <View style={{ marginTop: 12, flexDirection: 'row', justifyContent: 'space-between' }}>
               <Stat value={stats.loggedDays ? fmtNum(stats.avgProteinG) : '--'} unit="g" label="Avg protein / day" />
               <Stat value={stats.loggedDays ? fmtNum(stats.avgKcal) : '--'} label="Avg kcal / day" />
-              <Stat value={String(stats.proteinDaysHit)} unit={`/ ${stats.loggedDays}`} unitSize={13} label="Protein days hit" />
+              <Stat value={stats.loggedDays ? String(stats.proteinDaysHit) : '--'} unit={stats.loggedDays ? `/ ${stats.loggedDays}` : ''} unitSize={13} label="Protein days hit" />
             </View>
             <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderColor: color.border, flexDirection: 'row', justifyContent: 'space-between' }}>
               {stats.perDay.map((p) => {

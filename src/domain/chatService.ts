@@ -28,6 +28,8 @@ export class ChatService {
     if (r.safety.flagged) {
       const target = r.safety.action ? this.repo.getActivity(r.safety.action.activity_id) : null;
       card = { kind: 'safety', state: 'proposed', title: 'Safety check', items: [r.safety.action?.label ?? 'Pause your next intense session until you\'ve been seen?'], targetActivityId: target?.id };
+    } else if (r.target_proposal) {
+      card = { kind: 'target', state: 'proposed', title: 'Proposed target change', items: [r.target_proposal.reason], target: { key: r.target_proposal.key, value: r.target_proposal.value } };
     } else if (r.plan_patch) {
       card = { kind: 'patch', state: 'proposed', title: 'Proposed plan change', items: r.plan_patch.items, ops: r.plan_patch.ops };
     }
@@ -48,6 +50,13 @@ export class ChatService {
     const days = [...new Set(res.touched.map((d) => DOW_LONG[dow(d)].slice(0, 3)))];
     this.updateCard(msgId, { state: 'applied', title: 'Plan change · applied', appliedNote: `Applied · ${days.join(' and ')} updated.` });
     return { ok: true, toast: 'Patch validated · calendar updated' };
+  }
+  /** R11a: the accepted value persists as the user's own target. */
+  applyTarget(msgId: string): { ok: boolean; toast: string } {
+    const m = this.history().find((x) => x.id === msgId); if (!m?.card?.target) return { ok: false, toast: 'No target on this message' };
+    this.repo.setTarget(m.card.target.key, m.card.target.value);
+    this.updateCard(msgId, { state: 'applied', title: 'Target · updated', appliedNote: 'Applied · it\'s your target now — adjust it any time in Settings.' });
+    return { ok: true, toast: 'Target updated · used by readiness' };
   }
   declinePatch(msgId: string) { this.updateCard(msgId, { state: 'declined', title: 'Plan change · not applied' }); }
   reconsiderPatch(msgId: string) { this.updateCard(msgId, { state: 'proposed', title: 'Proposed plan change' }); }

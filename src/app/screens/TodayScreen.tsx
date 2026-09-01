@@ -32,7 +32,7 @@ export function TodayScreen() {
   const weekAgo = t.repo.signalSeries('weight', addDays(today, -7), addDays(today, -1));
   const delta = signals.weight != null && weekAgo.length ? signals.weight - weekAgo[0].value : null;
   const plans = t.repo.activitiesOn(today).filter((a) => a.source === 'nora');
-  const planned = plans[0] ?? null;
+  const planned = plans.find((a) => !t.repo.getResult(a.id)) ?? plans[0] ?? null; // the session still to do wins over a finished one (R6a)
   const planItem = planned ? toItem(planned, t.repo.getResult(planned.id), today) : null;
   const restReason = t.repo.getPlanWeek(addDays(today, -dow(today)))?.restReason || 'Nothing prescribed today. Walk, stretch, sleep — Nora built the week around it.';
   const reduceMotion = useReduceMotion();

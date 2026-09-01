@@ -223,3 +223,56 @@ Reachable only with a workaround: Nutrition **What's missing · failed / Retry**
 | P2 | Arc stroke/glow, explanation type size | **Accepted** — sizes match the design's CSS (10 px stroke, 14 px/1.55 copy); the glow is a wider translucent stroke standing in for the drop-shadow filter. |
 | P2 | START pill opens the sheet first | **Accepted** — the prototype's pill is a badge inside the row button; the sheet's Start session is one tap away. |
 | P2 | Preview subtitle order | **Accepted** — the two design surfaces disagree; Today's order is used everywhere. |
+
+---
+
+## Verification pass (round 2)
+
+Driven on the web build at 390×844 on 2026-09-01 after the fix round, starting from Settings → Demo → Reset to seeded user. Each **Fixed** row of the Resolution log was re-run with its original recipe; the three previously unreachable states were re-walked with the updated `CRITIC_PROMPT.md` recipes. **Verified: 28 PASS · 1 FAIL.** New findings: **0 P0 · 2 P1 · 8 P2.**
+
+| Item | Result | Evidence |
+|---|---|---|
+| P0 · Nora **Apply to calendar** → applied state + toast | PASS | Card flips to green "PLAN CHANGE · APPLIED / → Move Sprints from Tue to Fri / Applied · Tue and Fri updated. **View calendar**"; toast "Patch validated · calendar updated"; next week's Sprints now sits on Fri 11. (Screenshot: applied card.) |
+| Sprint player **end sheet** (new recipe) | PASS | Next week → Sprints → Reschedule → ‹ → Tue 1 → Move → row "Sprints · Today · Starts 6:30 PM · START" → Start session → Skip stage ×13 → COOLDOWN 14/14 → Skip → "HOW DID IT GO?" sheet (difficulty 1–5, Any pain?, note, Finish → marks completed). Finish → row "Completed · 6 × 20 s", toast "Session saved · Nora will factor it in". (Screenshot: end sheet over the cooldown.) |
+| Activity sheet **past-due unlogged** (new recipe) | PASS | Lower body Wed 2 → Reschedule → Mon 31 → Move → row "Lower body · Mon 31 · Not logged · 45 min planned"; sheet shows the orange notice "This was scheduled and never logged — **log what happened** so the week reads true." + Start session / **I did it — log it** / Confirm skipped / Reschedule / Ask Nora. I did it → "Completed · 6/6 exercises" + toast "Logged · Nora will factor it in". Run Sat 5 → Sun 30 → Confirm skipped → "Skipped · logged" + toast "Logged as skipped · Nora will adjust". (Screenshot: sheet.) |
+| P1 · Offline copy | PASS | Nora replies: Offline → send "How is my week looking?" → single muted centred line at the top of the thread "You're offline. Nora will reply when you're back — logging still works."; no error block, no Retry; the message sits unanswered. Design's Offline state shows the same line (with an empty thread). |
+| P1 · Error Retry persists across tabs | PASS | Error set → the unanswered turn shows "Nora couldn't reply — connection dropped." + **Retry**; Retry under Error stays failed; Today → Nora: block + Retry still there; OK set → Retry → reply lands ("Readiness is 84 today (green)…"). |
+| P1 · Gym Form video round-trip | PASS | Set 1 ticked at 0:06 → Form video (single status bar, Back / Open on YouTube) → Back: "1 / 2 SETS LOGGED" kept, clock reads 0:11 a few seconds later (kept running). Note: the REST 1:30 countdown is dropped on return (P2 below). |
+| P1 · Finish with no sets ticked | PASS | Start session → End session → difficulty 4 → Finish. Session detail "Tue Sep 1 · completed · difficulty 4/5 · no pain" lists every exercise with Actual = Planned (2 × 45 × 12, 3 × 135 × 8, 3 × 50 × 10, 3 × 120 × 10, 3 × 110 × 12, 2 × 0 × 30); calendar row "Completed · 6/6 exercises". |
+| P1 · Future sessions not startable | PASS | Next week's Sprints (Planned) sheet shows only Reschedule + Ask Nora to change; Reschedule picker pages weeks with ‹ › (Sun 30 – Sat 5 after ‹). |
+| P1 · Fiber macros vs micronutrients | PASS | Today's macros "Fiber 6.5 g / 30 g"; Micronutrients "Fiber 6.5 / 30 g". |
+| P1 · Narration vs fallback number | **FAIL** | Under OK the narrated list reads "Fiber · **avg 14 g** / 30 g"; under Error the deterministic line reads "Biggest gaps, last 14 days: **Fiber 13 g** / 30 g · Iron 9 mg / 18 mg · Calcium 565 mg / 1,000 mg." Iron and calcium agree; fiber still differs by 1 g between the two surfaces (rounding of the same aggregate, or a hard-coded 14 in the fake narration). R72/R72a. |
+| P1 · What's missing fails without a reload; Retry recovers | PASS | Error set in-session (after a seeded reset) → Nutrition renders the fallback line + **Retry** immediately; Retry under Error stays failed; OK set → the list re-narrates (Retry under OK also loads it). |
+| P2 · Single status bar (onboarding, form video) | PASS | One "9:41" on steps 1–5, Building, Failed, Preview and on the Form video screen. |
+| P2 · "Today · Today · 45 min" (sheet) | PASS (sheet) / see new finding | Padel sheet subtitle "Today · 45 min · Moderate". The **week row** still reads "Padel  Today / Today · 45 min · Moderate" (new P2). |
+| P2 · "1 sets" / "13 sets" | PASS | Gym: "You've done 1 set."; sprint: "You've done 2 stages." |
+| P2 · "sprint session" safety copy | not re-run | Copy-only change; not re-driven this pass. |
+| P2 · Rest-day card above Food | PASS | Day view Fri 4: "REST DAY / Nothing planned. Walk, stretch, sleep — Nora built the week around it." then "FOOD / Snap a pic of a meal…". |
+| P2 · No START pill on a non-guided today row | PASS | Ad-hoc Padel today: orange clock icon, no START pill; sheet offers Mark done / Reschedule / Ask Nora. (Screenshot: week list.) |
+| P2 · Readiness trend line fills its box | PASS (residual nit) | Line now spans the plot's vertical range with the dashed threshold beneath the dip; ~50 px of empty space remains between the dashed line and the "Aug 19 / today" axis labels. |
+| P2 · History longer than 8 rows | PASS | Seeded: 20 rows (Aug 9 – Aug 31); after two sessions today: 24 rows, CONSISTENCY 15/19. |
+| P2 · Fresh Progress history empty copy | PASS | "No sessions logged yet — start one from Today or the calendar." (Training-load caption on a fresh account still reads "Peaks in range — no overload risk" with no sessions — unchanged from round 1's P2.) |
+| P2 · Generated week naming "Sprints" | PASS | Onboarding preview and calendar rows read "Sprints". |
+| P2 · Keeps copy | PASS | What Nora knows: "Keeps · 3-mile run, Saturdays". |
+| P2 · Intake answers survive a reload | PASS | Plan generation: Fail → Reset to fresh → Strength / 4 days / Commercial gym / Running / "Left ankle — no jumping" → Build my plan → "THAT DIDN'T WORK … Retry" → reload → lands on STEP 5 OF 5 with the injury text restored; Back shows Running and 4 days still selected. |
+| P2 · Demo toggles persist across reload | PASS | Vision: Fail + Plan generation: Fail set → reload → both still highlighted; Meal → "Couldn't read the photo". |
+| P2 · Empty-week nutrition card | PASS (partial) | Next week: "-- g / -- / **0 / 0** PROTEIN DAYS HIT" — the protein-days cell still shows zeros. |
+| Sweep · Today (seeded) | PASS | 84 / green, hero row, Nutrition 86 / 120 g · 1,060 kcal, plan card; explanation streams. |
+| Sweep · Calendar week / day / month | PASS | Week strip, rows, nutrition card; Day view header "Sep 1 · Today · 3 activities"; Month "7 activities · September", first tap selects a day ("THURSDAY, SEP 10, 2026 / Planned · Lower body"), second tap opens Day view. |
+| Sweep · Log sheets · Meal flow | PASS | Sleep −0.5 → Save → "Saved · Nora will factor it in"; Meal: capture → estimate (3 items, ~640 kcal) → Save meal → toast; Today reads 139 / 120 g · 1,700 kcal. |
+| Sweep · Nora · What Nora knows · Settings | PASS | Patch thread, applied card, safety memory list (Resolve/Delete), Settings targets + Demo card; Reset to seeded / fresh both work. |
+
+### New findings (round 2)
+
+| State | Shows | Should show | Req | Sev |
+|---|---|---|---|---|
+| Today · plan card with two activities today | After the moved Sprints is completed, TODAY'S PLAN shows "6:30 PM / SPRINTS / Completed · 6 × 20 s" and hides the still-pending **Upper body 7:00 PM** (and later the pending Padel) — no ▶, no way to start it from Today. | The card should surface the next pending session of the day (or all of today's activities); a completed one should not mask a pending guided session. | R6 / R24 | **P1** |
+| Onboarding · plan preview | "YOUR FIRST WEEK / **4 training days.**" above **three** rows (Lower body TUE, Sprints THU, Upper body FRI); the calendar week then holds 3 activities. | The count and the rows must agree (either 4 rows or "3 training days this week — 4 from next week"). | R58 | **P1** |
+| Nora · applied patch → View calendar | Lands on **this week** (Aug 30 – Sep 5) although the patch changed next week. | Jump to the week the patch touched (Sep 6 – 12). | R43a | P2 |
+| Nora · applied patch result | Next week now carries **Sprints Fri 11 and Upper body Fri 11** on the same day. | The rail should keep sprints and a gym session off the same day, or the card should say both land on Fri. | R18 / R43a | P2 |
+| Calendar · week row for an ad-hoc today activity | "Padel  Today / **Today** · 45 min · Moderate" — date label and subtitle both say Today (the sheet fix did not reach the row). | "Padel  Today / 45 min · Moderate". | R26a | P2 |
+| Calendar · confirmed-skipped row | Subtitle "Skipped · **logged**" while the seeded skipped row reads "Skipped · 6 × 20 s". | One convention (status + planned detail, e.g. "Skipped · 30 min planned"). | R24c | P2 |
+| Gym player · Form video round-trip | The REST 1:30 countdown started by ticking a set is gone on return. | Rest timer continues (or resumes with the elapsed time) alongside the session clock. | R31 | P2 |
+| Onboarding · Plan generation: Fail persisted | With the flag persisted, the failed onboarding can only Retry into another failure — Settings is unreachable before the plan exists, so the demo is a dead end until storage is cleared. | A way out (Retry succeeds after N failures, or a demo escape on the failed screen). | R68 (demo) | P2 |
+| Nutrition · This week (empty week) | "-- g / -- / 0 / 0 PROTEIN DAYS HIT". | Dashes for the protein-days cell too. | R73 | P2 |
+| Nora · plain reply | "Last session was Upper body on **2026-09-01 (now)**" — raw ISO date and internal status token in prose (fake model). | Human date ("today") and no status token. | R47 | P2 |

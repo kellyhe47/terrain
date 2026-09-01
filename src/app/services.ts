@@ -44,8 +44,8 @@ export function createTerrain(db: SqlDriver, opts: { now?: () => string } = {}):
   const t: Terrain = {
     repo, memory, assembler, plans, chat, calendar, meals, library: exerciseLibrary, nutrientRef: nutrientReference, cfg, flags, now,
     modelName: baseModel.name, visionName: vision.name, usingFakeModel: baseModel instanceof FakeTextModel,
-    resetDemo: () => { seedDemo(repo, now()); db.persist(); },
-    resetFresh: () => { resetFresh(repo, now()); db.persist(); },
+    resetDemo: () => { seedDemo(repo, now()); Object.assign(flags, defaultFlags); db.persist(); },
+    resetFresh: () => { resetFresh(repo, now()); Object.assign(flags, defaultFlags); db.persist(); },
     isFresh: () => !repo.getProfile()?.onboarded,
   };
   // First launch: nothing in the store and not explicitly reset to fresh ⇒ seed the demo user (R67).

@@ -171,7 +171,7 @@ export function seedDemo(repo: Repo, installedAt: string): void {
     const t0 = `${addDays(today, -1)}T21:10:00`;
     repo.saveChat({ id: 'chat_1', role: 'user', text: 'Can we move sprints off Tuesday next week? My knees are a bit beat up this week.', card: null, createdAt: t0 });
     repo.saveChat({ id: 'chat_2', role: 'nora', text: "Good call — sore knees and max-effort sprints don't mix. Here's what I'd change; nothing moves until you apply it.", createdAt: `${addDays(today, -1)}T21:10:20`,
-      card: { kind: 'patch', state: 'proposed', title: 'Proposed plan change', items: ['Move Sprints from Tue to Fri'], ops: [{ op: 'move', activity_id: nextSprint.id, to_date: addDays(nx, 5) }] } });
+      card: { kind: 'patch', state: 'proposed', title: 'Proposed plan change', items: ['Move Sprints from Tue to Wed'], ops: [{ op: 'move', activity_id: nextSprint.id, to_date: addDays(nx, 3) }] } });
     repo.saveMemory({ id: 'mem_knees_week', type: 'context', text: 'Knees feeling beat up this week — keep max-effort work off them', date: addDays(today, -1), tags: [], resolved: false, createdAt: t0 });
   });
   void getExercise;

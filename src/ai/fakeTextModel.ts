@@ -132,7 +132,7 @@ export function fakeChat(p: ChatPayload): unknown {
     };
   }
   if (/been seen|got checked|doctor (said|cleared)|cleared me|resume/i.test(m)) {
-    return { reply: `Glad you got it looked at. I've logged that you've been seen — use "I've been seen — resume this" on the paused session to reinstate it. I'll keep the note either way.`, memory_writes: [{ type: 'context', text: 'Reports having been seen by a professional', tags: [] }], plan_patch: null, safety: safeOff };
+    return { reply: `Glad you got it looked at. I've logged that you've been seen — use "I've been seen — resume this" on the paused session to reinstate it. I'll keep the note either way.`, memory_writes: [{ type: 'context', text: 'Reports having been seen by a professional', tags: [] }], plan_patch: null, target_proposal: null, safety: safeOff };
   }
   // schedule change → patch
   const dayMatch = /(monday|tuesday|wednesday|thursday|friday|saturday|sunday|mon|tue|wed|thu|fri|sat|sun)\b/i.exec(low);
@@ -152,7 +152,7 @@ export function fakeChat(p: ChatPayload): unknown {
         const legDay = p.week_plan.find((w) => w.type === 'gym' && w.exercise_ids.includes('back_squat') && w.status !== 'completed');
         if (knees && legDay) { items.push(`Swap Back squat → Leg press on ${DOW_LONG[dow(legDay.date)].slice(0, 3)}`); ops.push({ op: 'swap_exercise', activity_id: legDay.id, from_exercise_id: 'back_squat', to_exercise_id: 'leg_press' }); }
         const memory_writes = knees ? [{ type: 'context', text: 'Knees feeling beat up this week — keep max-effort work off them', tags: [] }] : [];
-        return { reply: `Good call — ${knees ? 'sore knees and max-effort sprints don\'t mix' : 'that fits the week fine'}. Here's what I'd change; nothing moves until you apply it.`, memory_writes, plan_patch: { summary: items.join('; '), items, ops }, safety: safeOff };
+        return { reply: `Good call — ${knees ? 'sore knees and max-effort sprints don\'t mix' : 'that fits the week fine'}. Here's what I'd change; nothing moves until you apply it.`, memory_writes, plan_patch: { summary: items.join('; '), items, ops }, target_proposal: null, safety: safeOff };
       }
     }
   }
@@ -161,15 +161,27 @@ export function fakeChat(p: ChatPayload): unknown {
   if (part && /pain|hurt|sore|tweak|pinch|ache|strain/.test(low)) {
     const side = /right/.test(low) ? 'right ' : /left/.test(low) ? 'left ' : '';
     const during = /overhead/.test(low) ? 'overhead pressing painful' : /bench/.test(low) ? 'bench pressing painful' : /squat/.test(low) ? 'squatting painful' : /run/.test(low) ? 'running painful' : 'painful under load';
-    return { reply: `Noted — ${side}${part[1]}, ${during}. I've written it into your memory as a hard rule, so the next plan won't prescribe anything that loads it. Tell me when it's settled and I'll resolve it. If it sharpens or lingers, get it looked at.`, memory_writes: [{ type: 'injury', text: `${cap(side + part[1])}, ${during}`, tags: [] }], plan_patch: null, safety: safeOff };
+    return { reply: `Noted — ${side}${part[1]}, ${during}. I've written it into your memory as a hard rule, so the next plan won't prescribe anything that loads it. Tell me when it's settled and I'll resolve it. If it sharpens or lingers, get it looked at.`, memory_writes: [{ type: 'injury', text: `${cap(side + part[1])}, ${during}`, tags: [] }], plan_patch: null, target_proposal: null, safety: safeOff };
   }
   if (/keep|love|prefer|always|every (saturday|sunday|monday|tuesday|wednesday|thursday|friday)/.test(low) && dayMatch) {
-    return { reply: `Got it — I'll plan around ${m.replace(/[.!?]+$/, '')}. It's saved as a preference, so future weeks respect it without you asking again.`, memory_writes: [{ type: 'preference', text: m.replace(/^(i |i'd |please )+/i, '').replace(/[.!?]+$/, '') + ' — keep it', tags: [] }], plan_patch: null, safety: safeOff };
+    return { reply: `Got it — I'll plan around ${m.replace(/[.!?]+$/, '')}. It's saved as a preference, so future weeks respect it without you asking again.`, memory_writes: [{ type: 'preference', text: m.replace(/^(i |i'd |please )+/i, '').replace(/[.!?]+$/, '') + ' — keep it', tags: [] }], plan_patch: null, target_proposal: null, safety: safeOff };
   }
-  const r = p.readiness; const last = p.recent_sessions[0];
+  // R11a: a target proposal arrives as a change the user confirms — never set silently.
+  const tgt = /(protein|steps?|hydration|water|calorie|kcal)[^.]*(target|goal)|(raise|bump|increase|lower|drop)[^.]*(protein|steps|water|calories)/i.exec(low);
+  if (tgt) {
+    const which = /protein/.test(low) ? 'protein_g' : /step/.test(low) ? 'steps' : /hydration|water/.test(low) ? 'hydration_l' : 'calories';
+    const cur = Number(p.targets[which] ?? 0); const down = /lower|drop|less|reduce/.test(low);
+    const step = which === 'protein_g' ? 5 : which === 'steps' ? 500 : which === 'hydration_l' ? 0.25 : 50;
+    const value = Math.max(step, Math.round((cur * (down ? 0.9 : 1.15)) / step) * step);
+    const label: Record<string, string> = { protein_g: 'Protein target', steps: 'Daily steps', hydration_l: 'Hydration target', calories: 'Calories' };
+    const unit: Record<string, string> = { protein_g: ' g', steps: '', hydration_l: ' L', calories: ' kcal' };
+    return { reply: `Here's what I'd set, based on your goal and this week's training load — it's yours to confirm.`, memory_writes: [], plan_patch: null,
+      target_proposal: { key: which, value, reason: `${label[which]} ${cur}${unit[which]} → ${value}${unit[which]}` }, safety: safeOff };
+  }
+  const r = p.readiness; const last = p.recent_sessions.find((s) => s.status === 'completed' || s.status === 'skipped') ?? null;
   const readinessLine = r?.score != null ? `Readiness is ${r.score} today (${r.band})` : 'No readiness score yet today — log a couple of signals';
-  const lastLine = last ? ` Last session was ${last.name} on ${last.date} (${last.status}${last.difficulty ? `, difficulty ${last.difficulty}/5` : ''}).` : '';
-  return { reply: `${readinessLine}.${lastLine} ${/how|what|why|should/.test(low) ? 'Short answer: follow the plan as written, and tell me anything that changes — pain, schedule, sleep.' : 'Noted. Keep logging honestly and I\'ll adapt the week from it.'}`, memory_writes: [], plan_patch: null, safety: safeOff };
+  const lastLine = last ? ` Last session: ${last.name}, ${last.status}${last.difficulty ? ` at difficulty ${last.difficulty}/5` : ''}.` : '';
+  return { reply: `${readinessLine}.${lastLine} ${/how|what|why|should/.test(low) ? 'Short answer: follow the plan as written, and tell me anything that changes — pain, schedule, sleep.' : 'Noted. Keep logging honestly and I\'ll adapt the week from it.'}`, memory_writes: [], plan_patch: null, target_proposal: null, safety: safeOff };
 }
 function weekStartOf(date: string): string { return addDays(date, -dow(date)); }
 

@@ -58,7 +58,12 @@ export class PlanService {
     const ws = weekStart(today);
     const acts = await this.generateWeek(ws, asOf);
     const pw = this.repo.getPlanWeek(ws);
-    return { weekStart: ws, activities: acts.filter((a) => a.date >= today), summary: pw?.summary ?? '' };
+    const kept = acts.filter((a) => a.date >= today);
+    const keptDays = new Set(kept.filter((a) => a.source === 'nora').map((a) => a.date)).size;
+    const plannedDays = new Set(acts.filter((a) => a.source === 'nora').map((a) => a.date)).size;
+    let summary = pw?.summary ?? '';
+    if (keptDays < plannedDays) summary = `${keptDays} training day${keptDays === 1 ? '' : 's'} left this week (your full ${plannedDays} from Sunday)` + (summary.includes(' · ') ? summary.slice(summary.indexOf(' · ')) : '.');
+    return { weekStart: ws, activities: kept, summary };
   }
 
   /** Apply a patch in memory, re-run the rails on the resulting week, then persist (R28). */
