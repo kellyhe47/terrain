@@ -1,0 +1,19 @@
+{
+  "name": "sprint_session_structure",
+  "why": "Rubric §5: sprint sessions are structurally distinct — ordered phases with recovery between intervals; universe = phases of the generated session.",
+  "given": {
+    "as_of": "2026-08-18T17:00:00-05:00",
+    "session_request": { "type": "sprint", "prescribed_by": "nora", "intervals": 6 }
+  },
+  "expect": {
+    "result_type": "sprint_session",
+    "phase_order": [ "warmup", "intervals", "cooldown" ],
+    "counts_universe": "phases/blocks of this one session",
+    "counts": { "sprint_intervals": 6, "recovery_blocks": 6, "warmup_blocks_min": 1, "cooldown_blocks_min": 1 },
+    "must_include": [
+      { "id": "warmup_longer_than_gym_default", "reason": "rubric: 'longer warm-up' — warmup duration >= 10 min vs gym default 5" },
+      { "id": "purpose_text_per_phase", "reason": "trainee understands purpose, effort, safe execution of each stage" },
+      { "id": "feedback_feeds_shared_history", "reason": "completed session lands in the same adaptation history as gym workouts" }
+    ]
+  }
+}

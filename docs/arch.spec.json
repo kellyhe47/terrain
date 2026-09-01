@@ -1,0 +1,59 @@
+{
+  "groups": [
+    { "id": "ui", "label": "UI (Expo React Native)" },
+    { "id": "domain", "label": "Domain services (on device)" },
+    { "id": "data", "label": "Data (on device)" },
+    { "id": "ext", "label": "External" }
+  ],
+  "nodes": [
+    { "id": "home", "label": "Home / Wellness\n(readiness score)", "layer": 0, "group": "ui" },
+    { "id": "onboarding", "label": "Onboarding wizard", "layer": 0, "group": "ui" },
+    { "id": "calendar_ui", "label": "Fitness Calendar", "layer": 0, "group": "ui" },
+    { "id": "player", "label": "Session Players\n(gym + sprint)", "layer": 0, "group": "ui" },
+    { "id": "chat_ui", "label": "Nora Chat", "layer": 0, "group": "ui" },
+    { "id": "logging", "label": "Signal logging\n+ meal camera", "layer": 0, "group": "ui" },
+    { "id": "progress", "label": "Progress + PRs", "layer": 0, "group": "ui" },
+    { "id": "nora_knows", "label": "What Nora knows", "layer": 0, "group": "ui" },
+
+    { "id": "readiness", "label": "Readiness engine\n(DETERMINISTIC formula)", "layer": 1, "group": "domain", "accent": true },
+    { "id": "plan_svc", "label": "Plan service\n(LLM call → schema +\ninjury-rail validator)", "layer": 1, "group": "domain", "accent": true },
+    { "id": "calendar_engine", "label": "Calendar engine\n(status rules, patches)", "layer": 1, "group": "domain" },
+    { "id": "memory_svc", "label": "Coach memory service", "layer": 1, "group": "domain" },
+    { "id": "privacy", "label": "Privacy filter\n(DETERMINISTIC gate\nbefore every LLM call)", "layer": 1, "group": "domain", "accent": true },
+    { "id": "meal_svc", "label": "Meal estimator client", "layer": 1, "group": "domain" },
+
+    { "id": "sqlite", "label": "SQLite\n(signals, sessions, plan,\nmemory, meals, PRs)", "layer": 2, "group": "data" },
+    { "id": "exlib", "label": "Exercise library (seed)\ntags + YouTube URLs", "layer": 2, "group": "data" },
+    { "id": "seed", "label": "Seed script\n(demo user, 3 weeks)", "layer": 2, "group": "data" },
+
+    { "id": "oai_text", "label": "OpenAI gpt-5-mini\n(Nora chat, plans —\nPROBABILISTIC)", "layer": 3, "group": "ext", "accent": true },
+    { "id": "oai_vision", "label": "OpenAI vision tier\n(meal photos —\nPROBABILISTIC)", "layer": 3, "group": "ext" },
+    { "id": "youtube", "label": "YouTube\n(demo links)", "layer": 3, "group": "ext" }
+  ],
+  "edges": [
+    { "from": "onboarding", "to": "sqlite", "label": "intake profile" },
+    { "from": "home", "to": "readiness" },
+    { "from": "readiness", "to": "sqlite", "label": "reads today's signals" },
+    { "from": "readiness", "to": "privacy", "label": "score → explanation request" },
+    { "from": "logging", "to": "sqlite", "label": "signals (private flag)" },
+    { "from": "logging", "to": "meal_svc", "label": "photo" },
+    { "from": "meal_svc", "to": "oai_vision", "label": "photo → itemized estimate" },
+    { "from": "meal_svc", "to": "sqlite", "label": "user-confirmed entry" },
+    { "from": "calendar_ui", "to": "calendar_engine" },
+    { "from": "calendar_engine", "to": "sqlite", "label": "activities + statuses" },
+    { "from": "player", "to": "calendar_engine", "label": "session results" },
+    { "from": "player", "to": "exlib", "label": "instructions + video URL" },
+    { "from": "chat_ui", "to": "privacy" },
+    { "from": "plan_svc", "to": "privacy", "label": "context assembly" },
+    { "from": "privacy", "to": "oai_text", "label": "filtered context only" },
+    { "from": "oai_text", "to": "plan_svc", "label": "structured plan / patch" },
+    { "from": "plan_svc", "to": "exlib", "label": "validate exercise IDs + tags" },
+    { "from": "plan_svc", "to": "calendar_engine", "label": "validated plan" },
+    { "from": "oai_text", "to": "memory_svc", "label": "memory_writes[]" },
+    { "from": "memory_svc", "to": "sqlite" },
+    { "from": "nora_knows", "to": "memory_svc", "label": "view / delete entries" },
+    { "from": "progress", "to": "sqlite", "label": "history + PRs" },
+    { "from": "player", "to": "youtube", "label": "open link" },
+    { "from": "seed", "to": "sqlite", "label": "deterministic demo data" }
+  ]
+}

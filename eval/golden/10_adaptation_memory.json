@@ -1,0 +1,22 @@
+{
+  "name": "adaptation_memory",
+  "why": "Rubric §7: feedback persists beyond one conversation and shapes the next plan — the control here is that unrelated exercises are unaffected.",
+  "given": {
+    "as_of": "2026-08-24T08:00:00-05:00",
+    "history": [
+      { "date": "2026-08-19", "event": "chat", "content": "shoulder pain during overhead press", "stored_as": "injury_note: right shoulder, overhead pressing painful" }
+    ],
+    "trigger": "weekly plan regeneration on 2026-08-24",
+    "contraindicated_exercise_tags": [ "overhead_press" ]
+  },
+  "expect": {
+    "result_type": "weekly_plan",
+    "must_exclude": [
+      { "id": "exercises tagged overhead_press", "reason": "injury note from chat 5 days earlier persists in Nora's context" }
+    ],
+    "must_include": [
+      { "id": "injury_note in LLM planning context payload", "reason": "memory mechanism is inspectable, not vibes" },
+      { "id": "unrelated lower-body exercises unchanged (control)", "reason": "adaptation is targeted, not a full random reshuffle" }
+    ]
+  }
+}

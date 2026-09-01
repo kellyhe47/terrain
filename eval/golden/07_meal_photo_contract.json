@@ -1,0 +1,22 @@
+{
+  "name": "meal_photo_contract",
+  "why": "Rubric §1: photo estimation returns an itemized, editable structure presented as estimates (MacroFactor pattern) — asserts the contract shape, never the model's food identifications.",
+  "given": {
+    "as_of": "2026-08-17T12:30:00-05:00",
+    "input": "any meal photo",
+    "vision_model": "cheapest vision-capable OpenAI tier"
+  },
+  "expect": {
+    "result_type": "meal_estimate",
+    "schema": {
+      "items": [ { "name": "string", "portion_estimate": "string", "calories_est": "number", "protein_g": "number", "carbs_g": "number", "fat_g": "number" } ],
+      "confidence": "low|medium|high",
+      "totals": "computed by the app from items, not taken from the model"
+    },
+    "must_include": [
+      { "id": "estimate_label", "reason": "UI labels results as estimates, not measurements" },
+      { "id": "edit_before_save", "reason": "user can edit items/portions before the entry is saved" }
+    ],
+    "must_not_contain": [ "auto-save without confirmation", "precision claims (e.g. '412 kcal exactly')" ]
+  }
+}

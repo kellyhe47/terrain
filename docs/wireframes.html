@@ -1,0 +1,133 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Terrain — UI skeleton wireframes (low-fi)</title>
+<style>
+  body{font:13px/1.4 -apple-system,sans-serif;background:#f5f5f5;margin:20px;display:flex;flex-wrap:wrap;gap:24px}
+  .screen{width:300px;border:2px solid #333;background:#fff;padding:10px}
+  .screen h2{font-size:13px;margin:0 0 8px;background:#333;color:#fff;padding:4px 6px}
+  .box{border:1px dashed #888;padding:6px;margin:6px 0;color:#333}
+  .btn{border:1px solid #333;display:inline-block;padding:3px 8px;margin:2px;background:#eee}
+  .tag{font-size:11px;color:#666}
+  .row{display:flex;gap:6px}.row>*{flex:1}
+  .tabs{display:flex;border-top:2px solid #333;margin-top:8px}
+  .tabs div{flex:1;text-align:center;padding:4px;border-right:1px dashed #aaa;font-size:11px}
+  .note{font-size:11px;color:#a00}
+</style>
+
+<!-- ============ TAB BAR (all main screens) ============ -->
+<div class="screen"><h2>Global nav — 5 tabs</h2>
+  <div class="box">Every main screen carries this tab bar</div>
+  <div class="tabs"><div>Today</div><div>Calendar</div><div>Log +</div><div>Nora</div><div>Progress</div></div>
+  <div class="tag">Settings + "What Nora knows" reached from Today header gear icon</div>
+</div>
+
+<!-- ============ ONBOARDING ============ -->
+<div class="screen"><h2>Onboarding — 5-step wizard</h2>
+  <div class="box">Step 1/5 · Goal <span class="tag">(free text + chips: strength / endurance / lean / general)</span></div>
+  <div class="box">Step 2/5 · Days per week + minutes per session</div>
+  <div class="box">Step 3/5 · Equipment <span class="tag">(commercial gym / home / none)</span></div>
+  <div class="box">Step 4/5 · Activities you enjoy + recurring preferences <span class="tag">("3-mile run, Saturdays")</span></div>
+  <div class="box">Step 5/5 · Injuries / limitations <span class="tag">(free text → Nora structures them)</span></div>
+  <div class="btn">Back</div><div class="btn">Next</div>
+  <div class="box">Final: "Nora is building your plan…" spinner → plan preview → <span class="btn">Looks good</span> <span class="btn">Ask for changes (opens chat)</span></div>
+  <div class="note">Error state: plan generation fails → retry button, never a blank screen</div>
+</div>
+
+<!-- ============ TODAY / HOME ============ -->
+<div class="screen"><h2>Today — scored state</h2>
+  <div class="box" style="text-align:center">READINESS <b style="font-size:28px">85</b> 😄 🟢<br><span class="tag">LLM one-liner: why, naming 2+ signals</span></div>
+  <div class="box">Signal chips ×9: sleep 7.5h · energy 4 · soreness 2 · … <span class="tag">unlogged chips greyed "tap to log"; 🔒 on private entries</span></div>
+  <div class="box">Today's plan card: "Upper body — 45 min" <span class="btn">Start session</span></div>
+  <div class="box">Nora's daily note (1–2 lines, from readiness + plan)</div>
+</div>
+<div class="screen"><h2>Today — insufficient data / rest / loading</h2>
+  <div class="box">&lt;2 signals logged: no score, no emoji. "Log a couple of signals to see your readiness" <span class="btn">Log now</span></div>
+  <div class="box">Rest day: plan card says "Rest — here's why" (no Start button)</div>
+  <div class="box">Explanation loading: score + band render instantly (deterministic); explanation shows shimmer, falls back to formula-derived template line if LLM call fails</div>
+</div>
+
+<!-- ============ CALENDAR ============ -->
+<div class="screen"><h2>Calendar — week view</h2>
+  <div class="box">Week strip, dots per day. List below:</div>
+  <div class="box">✅ Mon · Upper body (completed)</div>
+  <div class="box">◐ Tue · Run 3mi (partial — 2/3 mi)</div>
+  <div class="box">✖ Wed · Sprints (skipped)</div>
+  <div class="box">⬜ Thu · Lower body (pending) <span class="tag">past-due pending shows "log what happened"</span></div>
+  <div class="box">➕ Fri · Pickleball (added by you · completed)</div>
+  <div class="btn">+ Add activity</div>
+  <div class="tag">Tap activity → detail: reschedule (drag/date-picker, deterministic) · "Ask Nora to change" (opens chat) · log result</div>
+  <div class="note">States: empty week ("Nora hasn't planned this week yet — generate"), plan regenerating (locked with spinner)</div>
+</div>
+
+<!-- ============ GYM PLAYER ============ -->
+<div class="screen"><h2>Gym session player</h2>
+  <div class="box">Phase pill: Warm-up → <b>Main</b> → Cooldown · elapsed 12:40</div>
+  <div class="box"><b>Bench press</b> · Nora: "3s down, pause at chest" <span class="btn">▶ Video</span>
+    <div class="row"><div class="box">Set 1 ✓ 60kg×8</div><div class="box">Set 2 ✓ 60×8</div><div class="box">Set 3 · 60×8 <span class="tag">tap value to edit, tap row to check</span></div></div>
+  </div>
+  <div class="box">Rest timer 90s ⏱ (auto-starts on set check)</div>
+  <div class="box">Next up: Incline DB press</div>
+  <div class="btn">End session</div>
+  <div class="note">Exit mid-session → confirm sheet: "Save as partial?" (records done-so-far)</div>
+</div>
+<div class="screen"><h2>Gym player — end-of-session sheet</h2>
+  <div class="box">How hard was that? 1–5</div>
+  <div class="box">Any pain? toggle → where + note</div>
+  <div class="box">Note for Nora (optional)</div>
+  <div class="btn">Finish → marks completed/partial in calendar</div>
+</div>
+
+<!-- ============ SPRINT PLAYER ============ -->
+<div class="screen"><h2>Sprint session player</h2>
+  <div class="box">Stage: <b>Interval 3/6</b> · countdown 0:14 <span class="tag">stages: warm-up (≥10 min) → [sprint → recovery]×N → cooldown</span></div>
+  <div class="box">Purpose text: "Max effort, tall posture. Stop if form breaks."</div>
+  <div class="box">Auto-advance with timer · <span class="btn">Pause</span> <span class="btn">Skip stage</span></div>
+  <div class="box">End sheet = same as gym (difficulty, pain, note) → same history</div>
+</div>
+
+<!-- ============ LOG ============ -->
+<div class="screen"><h2>Log + (signal sheet)</h2>
+  <div class="box">Grid of 9: sleep · energy · soreness · stress/mood · steps · hydration · weight · meal 📷 · ad-hoc activity</div>
+  <div class="box">Each numeric: quick stepper/slider · 🔒 "keep private from Nora" toggle per entry</div>
+  <div class="box">Ad-hoc activity: type, duration, intensity → lands on calendar as trainee-added</div>
+</div>
+<div class="screen"><h2>Meal photo — estimate & edit</h2>
+  <div class="box">📷 photo thumbnail · "Estimates, not measurements"</div>
+  <div class="box">Item: Chicken breast ~150g · 240 kcal · P38 C0 F6 <span class="btn">edit</span> <span class="btn">✕</span></div>
+  <div class="box">Item: Rice ~1 cup · 200 kcal … <span class="btn">edit</span></div>
+  <div class="box">+ Add item · Totals (computed by app) · confidence: medium</div>
+  <div class="btn">Save</div> <div class="btn">Discard</div>
+  <div class="note">States: analyzing (spinner on photo), vision call fails → manual entry form, nothing auto-saves</div>
+</div>
+
+<!-- ============ NORA CHAT ============ -->
+<div class="screen"><h2>Nora chat</h2>
+  <div class="box">Normal bubbles + context: Nora sees shared signals (header link → What Nora knows)</div>
+  <div class="box">Plan-change reply renders a <b>patch card</b>: "Move sprints → Fri, swap squats → leg press" <span class="btn">Apply</span> <span class="btn">Not now</span> <span class="tag">apply = validated patch to calendar</span></div>
+  <div class="box">Safety reply: referral language + <b>action card</b> "Pause Thursday's sprint session?" <span class="btn">Pause it</span> <span class="btn">Keep</span></div>
+  <div class="note">States: LLM error (retry bubble) · offline · empty history (Nora intro message)</div>
+</div>
+
+<!-- ============ PROGRESS ============ -->
+<div class="screen"><h2>Progress + PRs</h2>
+  <div class="box">Readiness trend (14/30d) · training consistency (sessions done vs planned)</div>
+  <div class="box">Signal trends: weight, sleep, steps (simple lines)</div>
+  <div class="box"><b>Personal Records</b> · ➕ add: activity · result · date · note<br>"Bench 80kg×5 · 2026-08-02" · "5k 24:10 · 2026-07-28"</div>
+  <div class="box">Workout history list → session detail (planned vs actual)</div>
+  <div class="note">Empty: "No records yet — add your first PR"</div>
+</div>
+
+<!-- ============ WHAT NORA KNOWS ============ -->
+<div class="screen"><h2>What Nora knows</h2>
+  <div class="box">Profile: goal, availability, equipment (from intake) <span class="btn">edit</span></div>
+  <div class="box">Memory entries, typed + dated:<br>⚕ injury · "right shoulder, overhead pressing painful" · Aug 19 <span class="btn">resolve</span> <span class="btn">delete</span><br>★ preference · "3-mile run Saturdays" <span class="btn">delete</span></div>
+  <div class="box">Sharing: "Private entries (🔒) are never sent to Nora" + count of private entries</div>
+  <div class="note">Empty: "Nora only knows your intake profile so far"</div>
+</div>
+
+<!-- ============ SETTINGS ============ -->
+<div class="screen"><h2>Settings</h2>
+  <div class="box">Targets: protein g (default 1.6g/kg) · hydration L (2.5) · steps (10 000)</div>
+  <div class="box">Demo: reset to seeded user · reset to fresh (onboarding)</div>
+  <div class="box">About / safety disclaimer ("wellness guidance, not medical advice")</div>
+</div>

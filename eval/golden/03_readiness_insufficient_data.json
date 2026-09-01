@@ -1,0 +1,17 @@
+{
+  "name": "readiness_insufficient_data",
+  "why": "Degenerate case: fewer than 2 signals logged today produces an explicit insufficient-data state, never a fabricated score.",
+  "given": {
+    "as_of": "2026-08-14T07:00:00-05:00",
+    "signals_today": {},
+    "yesterday_sessions": []
+  },
+  "expect": {
+    "result_type": "insufficient_data",
+    "score": null,
+    "must_include": [
+      { "id": "log_prompt", "reason": "home screen prompts the user to log signals instead of showing a score" }
+    ],
+    "must_not_contain": [ "numeric score", "band color", "emoji" ]
+  }
+}

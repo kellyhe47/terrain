@@ -1,0 +1,28 @@
+{
+  "name": "plan_generation_constraints",
+  "why": "Rubric §2: Nora's plan must respect intake constraints (injury, availability, recurring preference) — enforced by deterministic schema/rail validation of the LLM's structured output, not by trusting prose.",
+  "given": {
+    "as_of": "2026-08-17T08:00:00-05:00",
+    "intake": {
+      "goal": "build strength, stay lean",
+      "days_available_per_week": 4,
+      "equipment": "commercial gym",
+      "injuries": [ { "area": "right knee", "note": "no deep squatting or jumping" } ],
+      "recurring_preferences": [ { "activity": "run", "detail": "3 miles", "frequency": "weekly", "preferred_day": "Saturday" } ]
+    },
+    "contraindicated_exercise_tags": [ "deep_squat", "plyometric_jump" ]
+  },
+  "expect": {
+    "result_type": "weekly_plan",
+    "schema_valid": true,
+    "counts_universe": "sessions in the generated week",
+    "counts": { "training_days_max": 4, "saturday_run_3mi": 1 },
+    "must_exclude": [
+      { "id": "exercises tagged deep_squat or plyometric_jump", "reason": "knee injury from intake" }
+    ],
+    "must_include": [
+      { "id": "warmup+main+cooldown in every gym session", "reason": "rubric §4" },
+      { "id": "youtube_url per gym exercise", "reason": "rubric §4 demonstration links" }
+    ]
+  }
+}
