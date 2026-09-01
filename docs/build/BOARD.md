@@ -10,7 +10,7 @@
 | T06 | Context assembler + text model seam (OpenRouter pinned + fake) + privacy boundary test + chat/safety (fixture 08) + memory service | DONE | |
 | T07 | Vision adapter + providers + meal estimator + fixture 07 (offline + live) | DONE | |
 | T08 | Calendar engine (status derivation, add/log/skip/reschedule, patch apply) + nutrition aggregator (totals, micros, week stats, gaps) + sprint structure + progress stats | DONE | |
-| T09 | Seed script (demo user, 35d signals, statuses incl. in-progress today, memories, meals ≥3 days, supps, PRs) + fresh reset | TODO | |
+| T09 | Seed script (demo user, 35d signals, statuses incl. in-progress today, memories, meals ≥3 days, supps, PRs) + fresh reset | DONE | current week placed relative to today |
 | T10 | UI: shell (nav, tabs, sheets, toast), Today | TODO | |
 | T11 | UI: Log grid + numeric sheets + supplements sheet + meal photo flow (camera/analyzing/estimate/fail/manual) | TODO | |
 | T12 | UI: Calendar (day/week/month, activity sheet incl. Ask Nora, add sheet, empty/regen) | TODO | |

@@ -20,6 +20,7 @@ export async function openSqlJs(opts: SqlJsOptions = {}): Promise<SqlDriver> {
   const E = await engine();
   const db = opts.image ? new E.Database(opts.image) : new E.Database();
   db.run('PRAGMA foreign_keys = ON');
+  let depth = 0;
   let dirty = false;
   let timer: ReturnType<typeof setTimeout> | null = null;
   const schedule = () => {
@@ -46,9 +47,11 @@ export async function openSqlJs(opts: SqlJsOptions = {}): Promise<SqlDriver> {
     },
     get<T extends Row = Row>(sql: string, params: SqlParam[] = []): T | undefined { return driver.all<T>(sql, params)[0]; },
     transaction<T>(fn: () => T): T {
-      db.run('BEGIN');
+      if (depth > 0) return fn(); // nested: join the outer transaction
+      db.run('BEGIN'); depth++;
       try { const r = fn(); db.run('COMMIT'); schedule(); return r; }
       catch (e) { db.run('ROLLBACK'); throw e; }
+      finally { depth--; }
     },
     persist() { if (timer) { clearTimeout(timer); timer = null; } persist(); },
     close() { driver.persist(); db.close(); },
