@@ -93,7 +93,7 @@ export function fakePlan(p: PlanPayload): unknown {
   const scale = intake.goal === 'Strength' ? 1 : 0.85;
   const sessions = days.map((d, i) => {
     const t = tpls[i % tpls.length]; const date = addDays(p.week_start, d);
-    if (t.focus === 'sprint') return { date, type: 'sprint', name: 'Sprints ×6', focus: 'track', minutes: 27, start_time: '18:30', exercises: [], intervals: 6 };
+    if (t.focus === 'sprint') return { date, type: 'sprint', name: 'Sprints', focus: 'track', minutes: 27, start_time: '18:30', exercises: [], intervals: 6 };
     used.clear();
     const exs: unknown[] = [];
     const nWarm = intake.minutes_per_session >= 60 ? 2 : 1;
@@ -128,7 +128,7 @@ export function fakeChat(p: ChatPayload): unknown {
       reply: `That's worth taking seriously — please get it checked by a qualified medical professional before your next hard session. I can't tell you what it is, and I won't guess. I've noted it so we both remember.`,
       memory_writes: [{ type: 'context', text: `${what}${extra}${during} — advised to see a professional`, tags: [] }],
       plan_patch: null,
-      safety: { flagged: true, referral: true, no_diagnosis: true, no_clearance: true, action: nx ? { activity_id: nx.id, label: `Pause ${nx.weekday}'s ${nx.name.toLowerCase()} session until you've been seen?` } : null },
+      safety: { flagged: true, referral: true, no_diagnosis: true, no_clearance: true, action: nx ? { activity_id: nx.id, label: `Pause ${nx.weekday}'s ${nx.type === 'sprint' ? 'sprint' : nx.name.toLowerCase()} session until you've been seen?` } : null },
     };
   }
   if (/been seen|got checked|doctor (said|cleared)|cleared me|resume/i.test(m)) {

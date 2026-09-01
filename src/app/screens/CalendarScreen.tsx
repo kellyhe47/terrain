@@ -178,8 +178,8 @@ export function CalendarScreen() {
           <View style={{ backgroundColor: color.surface, borderWidth: 1, borderColor: color.border, borderRadius: 8, paddingVertical: 14, paddingHorizontal: 16 }} accessibilityLabel="Nutrition this week">
             <Label>Nutrition · this week</Label>
             <View style={{ marginTop: 12, flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Stat value={fmtNum(stats.avgProteinG)} unit="g" label="Avg protein / day" />
-              <Stat value={fmtNum(stats.avgKcal)} label="Avg kcal / day" />
+              <Stat value={stats.loggedDays ? fmtNum(stats.avgProteinG) : '--'} unit="g" label="Avg protein / day" />
+              <Stat value={stats.loggedDays ? fmtNum(stats.avgKcal) : '--'} label="Avg kcal / day" />
               <Stat value={String(stats.proteinDaysHit)} unit={`/ ${stats.loggedDays}`} unitSize={13} label="Protein days hit" />
             </View>
             <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderColor: color.border, flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -196,6 +196,13 @@ export function CalendarScreen() {
           </View>
         ) : null}
 
+        {/* Empty day (R29) */}
+        {!isMonth && planned && isDay && dayItems.length === 0 ? (
+          <View style={{ backgroundColor: color.surface, borderWidth: 1, borderStyle: 'dashed', borderColor: color.borderStrong, borderRadius: 8, paddingVertical: 30, paddingHorizontal: 20, alignItems: 'center' }} accessibilityLabel="Rest day">
+            <Display size={18} lh={19} style={{ textAlign: 'center' }}>Rest day</Display>
+            <Small size={13} lh={20} style={{ marginTop: 6, textAlign: 'center' }}>Nothing planned. Walk, stretch, sleep — Nora built the week around it.</Small>
+          </View>
+        ) : null}
         {/* Day food (R79) */}
         {!isMonth && planned && isDay ? (
           <View style={{ gap: 8 }}>
@@ -233,13 +240,6 @@ export function CalendarScreen() {
           </View>
         ) : null}
 
-        {/* Empty day (R29) */}
-        {!isMonth && planned && isDay && dayItems.length === 0 ? (
-          <View style={{ backgroundColor: color.surface, borderWidth: 1, borderStyle: 'dashed', borderColor: color.borderStrong, borderRadius: 8, paddingVertical: 30, paddingHorizontal: 20, alignItems: 'center' }} accessibilityLabel="Rest day">
-            <Display size={18} lh={19} style={{ textAlign: 'center' }}>Rest day</Display>
-            <Small size={13} lh={20} style={{ marginTop: 6, textAlign: 'center' }}>Nothing planned. Walk, stretch, sleep — Nora built the week around it.</Small>
-          </View>
-        ) : null}
       </ScrollView>
 
       {sheet?.kind === 'add' ? (
@@ -261,7 +261,7 @@ export function CalendarScreen() {
 }
 
 function ActivityRow({ item, today, onPress }: { item: CalendarItem; today: ISODate; onPress: () => void }) {
-  const now = item.status === 'now';
+  const now = item.status === 'now' && item.guided; // the Start pill belongs to sessions with a player (R24/R82)
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={`${item.activity.name}, ${item.subtitle}`} onPress={onPress}
       style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: pressed ? color.surface2 : color.surface, borderWidth: 1, borderColor: color.border, borderRadius: 8, paddingVertical: 13, paddingHorizontal: 14 }]}>

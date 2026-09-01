@@ -45,16 +45,18 @@ export function OnboardingScreen() {
   const { t, asOf, bump } = useTerrain();
   const nav = useNav();
 
+  // "Your answers are safe" (R59): an intake saved before generation (onboarded:false) is restored after a reload.
+  const saved = t.repo.getProfile();
   const [phase, setPhase] = useState<Phase>('wizard');
-  const [step, setStep] = useState(1);
-  const [goal, setGoal] = useState<Goal | null>(null);
-  const [goalText, setGoalText] = useState('');
-  const [days, setDays] = useState(4);
-  const [minutes, setMinutes] = useState(45);
-  const [equip, setEquip] = useState<Equipment | null>(null);
-  const [acts, setActs] = useState<string[]>([]);
-  const [recurring, setRecurring] = useState<RecurringPreference[]>([]);
-  const [injuries, setInjuries] = useState('');
+  const [step, setStep] = useState(saved ? 5 : 1);
+  const [goal, setGoal] = useState<Goal | null>(saved?.goal ?? null);
+  const [goalText, setGoalText] = useState(saved?.goalText ?? '');
+  const [days, setDays] = useState(saved?.daysPerWeek ?? 4);
+  const [minutes, setMinutes] = useState(saved?.minutesPerSession ?? 45);
+  const [equip, setEquip] = useState<Equipment | null>(saved?.equipment ?? null);
+  const [acts, setActs] = useState<string[]>(saved?.activities ?? []);
+  const [recurring, setRecurring] = useState<RecurringPreference[]>(saved?.recurring ?? []);
+  const [injuries, setInjuries] = useState(saved?.injuriesText ?? '');
   const [result, setResult] = useState<FirstWeek | null>(null);
   const runId = useRef(0);
 
@@ -90,8 +92,9 @@ export function OnboardingScreen() {
       const now = asOf();
       t.repo.saveProfile(profile(false));
       const injuryText = injuries.trim();
-      if (injuryText) { const tags = await t.assembler.structureInjury(injuryText); t.memory.add('injury', injuryText, now, tags); }
-      for (const r of recurring) t.memory.add('preference', `${r.detail} ${r.activity}, ${DOW_LONG[r.preferredDay]}s — keep it`, now);
+      const existing = t.memory.list();
+      if (injuryText && !existing.some((m) => m.type === 'injury' && m.text === injuryText)) { const tags = await t.assembler.structureInjury(injuryText); t.memory.add('injury', injuryText, now, tags); }
+      for (const r of recurring) { const text = `${r.detail} ${r.activity}, ${DOW_LONG[r.preferredDay]}s — keep it`; if (!existing.some((m) => m.type === 'preference' && m.text === text)) t.memory.add('preference', text, now); }
       bump();
     } catch {
       if (id !== runId.current) return;

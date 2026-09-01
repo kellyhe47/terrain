@@ -13,6 +13,8 @@ import { Btn } from '../ui/primitives';
 import { Icon } from '../ui/icons';
 import { StatusBarFake } from '../ui/frame';
 import { media } from '../ui/assets';
+
+const sessionCache = new Map<string, { idx: number; done: Record<string, boolean>; vals: Record<string, { w: number; r: number }>; elapsed: number }>();
 import { EndSheet, ExitSheet, fmtClock } from './player/sheets';
 
 const PHASE_LABEL: Record<Phase, string> = { warmup: 'Warm-up', main: 'Main', cooldown: 'Cooldown' };
@@ -27,11 +29,14 @@ export function GymPlayerScreen({ activityId }: { activityId: string }) {
   const a = t.repo.getActivity(activityId);
   const exercises = useMemo(() => (a?.exercises ?? []).map((p) => ({ ...p, lib: t.library.get(p.exerciseId) })), [a, t]);
 
-  const [idx, setIdx] = useState(0);
-  const [done, setDone] = useState<Record<string, boolean>>({});
-  const [vals, setVals] = useState<Record<string, { w: number; r: number }>>({});
+  const cached = sessionCache.get(activityId);
+  const [idx, setIdx] = useState(cached?.idx ?? 0);
+  const [done, setDone] = useState<Record<string, boolean>>(cached?.done ?? {});
+  const [vals, setVals] = useState<Record<string, { w: number; r: number }>>(cached?.vals ?? {});
   const [rest, setRest] = useState(0);
-  const [elapsed, setElapsed] = useState(0);
+  const [elapsed, setElapsed] = useState(cached?.elapsed ?? 0);
+  // Keep the in-progress session in a module cache so pushing the Form video screen (which unmounts this one) never resets it (R20/R31).
+  useEffect(() => { sessionCache.set(activityId, { idx, done, vals, elapsed }); }, [activityId, idx, done, vals, elapsed]);
   const [panel, setPanel] = useState(false);
   const [sheet, setSheet] = useState<null | 'exit' | 'end'>(null);
 
@@ -89,19 +94,20 @@ export function GymPlayerScreen({ activityId }: { activityId: string }) {
   const step = (k: string, f: 'w' | 'r', d: number) => setVals((v) => { const cv = v[k] ?? { w: cur.weightLb, r: cur.reps }; const min = f === 'w' ? 0 : 1; return { ...v, [k]: { ...cv, [f]: Math.max(min, +(cv[f] + d).toFixed(1)) } }; });
   const toggle = (k: string) => { const was = !!done[k]; setDone((d) => ({ ...d, [k]: !was })); if (!was) setRest(REST_SECONDS); };
 
-  const collectSets = (): SetLog[] => exercises.flatMap((ex, e) => Array.from({ length: ex.sets }, (_, i) => { const k = key(e, i); const v = vals[k] ?? { w: ex.weightLb, r: ex.reps }; return { exerciseId: ex.exerciseId, setIndex: i, weightLb: v.w, reps: v.r, done: !!done[k] }; }));
+  const collectSets = (allDone = false): SetLog[] => exercises.flatMap((ex, e) => Array.from({ length: ex.sets }, (_, i) => { const k = key(e, i); const v = vals[k] ?? { w: ex.weightLb, r: ex.reps }; return { exerciseId: ex.exerciseId, setIndex: i, weightLb: v.w, reps: v.r, done: allDone || !!done[k] }; }));
   const exercisesDone = () => exercises.filter((ex, e) => Array.from({ length: ex.sets }, (_, i) => !!done[key(e, i)]).some(Boolean)).length;
   const minutes = () => Math.round(elapsed / 60);
 
   const savePartial = () => {
     t.calendar.saveSessionResult({ activityId, outcome: 'done', doneCount: exercisesDone(), totalCount: count, minutes: minutes(), sets: collectSets(), loggedAt: asOf() });
-    bump(); setSheet(null); showToast(`Saved · ${doneSets} sets recorded`); nav.setTab('calendar');
+    sessionCache.delete(activityId); bump(); setSheet(null); showToast(`Saved · ${doneSets} ${doneSets === 1 ? 'set' : 'sets'} recorded`); nav.setTab('calendar');
   };
-  const discard = () => { t.calendar.discardSession(activityId); bump(); setSheet(null); nav.setTab('calendar'); };
+  const discard = () => { t.calendar.discardSession(activityId); sessionCache.delete(activityId); bump(); setSheet(null); nav.setTab('calendar'); };
   const finish = (p: { difficulty?: number; pain: boolean; painWhere?: string; note?: string }) => {
     const dc = exercisesDone();
-    t.calendar.saveSessionResult({ activityId, outcome: 'done', doneCount: dc > 0 ? dc : count, totalCount: count, minutes: minutes(), difficulty: p.difficulty, pain: p.pain, painWhere: p.painWhere, note: p.note, sets: collectSets(), loggedAt: asOf() });
-    bump(); setSheet(null); showToast('Session saved · Nora will factor it in'); nav.setTab('calendar');
+    // Finish → marks completed (R32): with nothing ticked, every prescribed set counts as done so the detail table agrees with the calendar (R24a).
+    t.calendar.saveSessionResult({ activityId, outcome: 'done', doneCount: dc > 0 ? dc : count, totalCount: count, minutes: minutes(), difficulty: p.difficulty, pain: p.pain, painWhere: p.painWhere, note: p.note, sets: collectSets(dc === 0), loggedAt: asOf() });
+    sessionCache.delete(activityId); bump(); setSheet(null); showToast('Session saved · Nora will factor it in'); nav.setTab('calendar');
   };
 
   const translateY = anim.interpolate({ inputRange: [0, 1], outputRange: [panelH + 24, 0] });

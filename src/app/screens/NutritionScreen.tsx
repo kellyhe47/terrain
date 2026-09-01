@@ -41,7 +41,7 @@ export function NutritionScreen() {
   const meals14 = t.repo.mealsBetween(addDays(today, -13), today);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const gaps = useMemo(() => gaps14(t.repo, today, targets, t.nutrientRef, hasTarget), [t, today, version]);
-  const gapsKey = `${today}|${meals14.map((m) => m.id).join(',')}`;
+  const gapsKey = `${today}|${t.repo.getMeta('seeded_at') ?? ''}|${t.flags.nora}|${gaps.ranked.map((g) => `${g.key}:${g.avgPerDay.toFixed(2)}`).join(',')}|${gaps.onTrack.map((g) => g.key).join(',')}`;
 
   return (
     <View style={{ flex: 1, backgroundColor: color.bg }}>
@@ -119,12 +119,15 @@ export function NutritionScreen() {
   function toggleSupp(id: string, on: boolean) { t.repo.setTaken(id, today, on); bump(); }
 }
 
+/** Grams: one decimal under 10 (matches the micronutrient rows), whole numbers above. */
+const fmtG = (n: number) => (n < 10 ? (+n.toFixed(1)).toLocaleString('en-US') : fmtNum(n));
+
 function MacroRow({ label, value, target, fill }: { label: string; value: number; target: number; fill: string }) {
   return (
     <View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <Semi size={12}>{label}</Semi>
-        <Numeral size={15} lh={19}>{fmtNum(value)} g <Tiny>/ {fmtNum(target)} g</Tiny></Numeral>
+        <Numeral size={15} lh={19}>{fmtG(value)} g <Tiny>/ {fmtG(target)} g</Tiny></Numeral>
       </View>
       <View style={{ marginTop: 6 }}><Bar pct={target > 0 ? (value / target) * 100 : 0} fill={fill} /></View>
     </View>

@@ -13,11 +13,11 @@ export function fmtClock(sec: number): string {
 
 export interface EndPayload { difficulty?: number; pain: boolean; painWhere?: string; note?: string; }
 
-export function ExitSheet({ open, doneSets, onSave, onDiscard, onKeep }: { open: boolean; doneSets: number; onSave: () => void; onDiscard: () => void; onKeep: () => void }) {
+export function ExitSheet({ open, doneSets, onSave, onDiscard, onKeep, unit = 'set' }: { open: boolean; doneSets: number; onSave: () => void; onDiscard: () => void; onKeep: () => void; unit?: 'set' | 'stage' }) {
   return (
     <Sheet open={open} onClose={onKeep}>
       <Display size={20} lh={22}>Leaving mid-session</Display>
-      <Body style={{ marginTop: 8 }}>{`You've done ${doneSets} sets. Save the session? Everything you did counts as completed.`}</Body>
+      <Body style={{ marginTop: 8 }}>{`You've done ${doneSets} ${doneSets === 1 ? unit : unit + 's'}. Save the session? Everything you did counts as completed.`}</Body>
       <View style={{ gap: 8, marginTop: 14 }}>
         <Btn label="Save session" kind="primary" onPress={onSave} />
         <Btn label="Discard session" kind="secondary" onPress={onDiscard} />

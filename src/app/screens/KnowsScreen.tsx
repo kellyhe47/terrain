@@ -21,8 +21,8 @@ export function KnowsScreen() {
 
   const keeps = profile
     ? profile.recurring.length
-      ? profile.recurring.map((r) => `${r.detail} ${r.activity}, ${DOW_LONG[r.preferredDay]}s`).join(' · ')
-      : profile.activities.length ? profile.activities.join(', ') : 'None yet'
+      ? profile.recurring.map((r) => { const mi = /^(\d+(?:\.\d+)?)\s*(mi|mile|miles)$/i.exec(r.detail.trim()); return `${mi ? `${mi[1]}-mile ${r.activity}` : `${r.detail} ${r.activity}`.trim()}, ${DOW_LONG[r.preferredDay]}s`; }).join(' · ')
+      : 'None yet'
     : '—';
 
   const resolve = (m: MemoryEntry) => { t.memory.resolve(m.id); bump(); };

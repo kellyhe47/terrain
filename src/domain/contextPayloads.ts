@@ -14,7 +14,7 @@ export interface BaseContext {
   memory: MemorySummary; recent_sessions: SessionSummary[];
 }
 export interface PlanPayload extends BaseContext { week_start: ISODate; week_dates: ISODate[]; contraindicated_tags: string[]; library: LibraryRow[]; violations: string[]; readiness_recent: Array<{ date: ISODate; score: number | null }>; }
-export interface ChatPayload extends BaseContext { message: string; week_plan: WeekPlanRow[]; next_intense_session: { id: string; name: string; date: ISODate; weekday: string } | null; contraindicated_tags: string[]; violations: string[]; }
+export interface ChatPayload extends BaseContext { message: string; week_plan: WeekPlanRow[]; next_intense_session: { id: string; name: string; type: string; date: ISODate; weekday: string } | null; contraindicated_tags: string[]; violations: string[]; }
 export interface ExplanationPayload extends BaseContext { plan_today: { name: string; type: string; subtitle: string } | null; rest_day: boolean; }
 export interface GapsPayload extends BaseContext { gaps: { days: number; logged_days: number; ranked: Array<{ key: string; label: string; unit: string; avg_per_day: number; target: number; ratio: number; ceiling: boolean }>; on_track: string[]; supplements: Array<{ name: string; nutrient_key?: string; adherence: number }> }; }
 export interface InjuryPayload { text: string; vocabulary: readonly string[]; }

@@ -46,13 +46,13 @@ export function SprintPlayerScreen({ activityId }: { activityId: string }) {
   useEffect(() => { Animated.timing(bgAnim, { toValue: BG_INDEX[stage.kind], duration: 300, useNativeDriver: false }).start(); }, [stage.kind, bgAnim]);
   const bg = bgAnim.interpolate({ inputRange: [0, 1, 2], outputRange: [color.bg, color.orange, color.recoveryGreen] });
 
-  const skip = useCallback(() => { const n = Math.min(idx + 1, stages.length - 1); setIdx(n); setRemain(stages[n].seconds); }, [idx, stages]);
+  const skip = useCallback(() => { if (idx >= stages.length - 1) { setRunning(false); setSheet('end'); return; } const n = idx + 1; setIdx(n); setRemain(stages[n].seconds); }, [idx, stages]);
 
   const sprintsDone = stages.slice(0, idx).filter((s) => s.kind === 'sprint').length;
   const minutes = () => Math.round(elapsed / 60);
   const savePartial = () => {
     t.calendar.saveSessionResult({ activityId, outcome: 'done', doneCount: sprintsDone, totalCount: intervals, minutes: minutes(), loggedAt: asOf() });
-    bump(); setSheet(null); showToast(`Saved · ${idx} sets recorded`); nav.setTab('calendar');
+    bump(); setSheet(null); showToast(`Saved · ${idx} ${idx === 1 ? 'stage' : 'stages'} recorded`); nav.setTab('calendar');
   };
   const discard = () => { t.calendar.discardSession(activityId); bump(); setSheet(null); nav.setTab('calendar'); };
   const finish = (p: { difficulty?: number; pain: boolean; painWhere?: string; note?: string }) => {
@@ -86,7 +86,7 @@ export function SprintPlayerScreen({ activityId }: { activityId: string }) {
         <SprintBtn label="Skip stage" onPress={skip} />
       </View>
 
-      <ExitSheet open={sheet === 'exit'} doneSets={idx} onSave={savePartial} onDiscard={discard} onKeep={() => setSheet(null)} />
+      <ExitSheet open={sheet === 'exit'} doneSets={idx} unit="stage" onSave={savePartial} onDiscard={discard} onKeep={() => setSheet(null)} />
       <EndSheet open={sheet === 'end'} onClose={() => setSheet(null)} onFinish={finish} />
     </Animated.View>
   );

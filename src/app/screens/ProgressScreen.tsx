@@ -45,10 +45,13 @@ export function ProgressScreen() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const data = useMemo(() => ({
     cons: consistency(t.repo, today), avg: avgReadiness(t.repo, today, 14), sigs: signalTrends(t.repo, today),
-    load: trainingLoad14(t.repo, today), prs: t.repo.listPRs(), history: workoutHistory(t.repo, today),
+    load: trainingLoad14(t.repo, today), prs: t.repo.listPRs(), history: workoutHistory(t.repo, today, 30),
   }), [t, today, version]);
 
-  const trendPts = polyPoints(trend.map((p) => p.score), TREND_W, TREND_H, 0, 100, 6);
+  const scores = trend.map((p) => p.score).filter((v): v is number => v != null);
+  const yMin = scores.length ? Math.max(0, Math.min(...scores) - 8) : 0, yMax = scores.length ? Math.min(100, Math.max(...scores) + 8) : 100;
+  const trendPts = polyPoints(trend.map((p) => p.score), TREND_W, TREND_H, yMin, yMax, 6);
+  const baselineY = TREND_H - 6 - ((70 - yMin) / ((yMax - yMin) || 1)) * (TREND_H - 12); // the green band threshold (R3)
   const loadMax = Math.max(0, ...data.load.map((d) => d.load));
   const loadNonZero = data.load.filter((d) => d.load > 0);
   const loadMean = loadNonZero.length ? loadNonZero.reduce((a, d) => a + d.load, 0) / loadNonZero.length : 0;
@@ -77,7 +80,7 @@ export function ProgressScreen() {
           <View style={{ marginTop: 10, height: TREND_H }} accessibilityLabel={`Readiness trend, last ${range} days`}>
             <Svg width="100%" height={TREND_H} viewBox={`0 0 ${TREND_W} ${TREND_H}`} preserveAspectRatio="none">
               {trendPts ? <Polyline points={trendPts} fill="none" stroke={color.orange} strokeWidth={2} /> : null}
-              <Line x1={0} y1={26} x2={TREND_W} y2={26} stroke={color.border} strokeDasharray="3 4" />
+              <Line x1={0} y1={Math.max(2, Math.min(TREND_H - 2, baselineY))} x2={TREND_W} y2={Math.max(2, Math.min(TREND_H - 2, baselineY))} stroke={color.border} strokeDasharray="3 4" />
             </Svg>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
@@ -150,6 +153,7 @@ export function ProgressScreen() {
         {/* Workout history */}
         <Card style={{ padding: 0, overflow: 'hidden' }}>
           <View style={{ paddingTop: 14, paddingHorizontal: 16, paddingBottom: 6 }}><Label>Workout history</Label></View>
+          {data.history.length === 0 ? <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}><Small size={13} lh={18}>No sessions logged yet — start one from Today or the calendar.</Small></View> : null}
           {data.history.map((h) => (
             <Pressable key={h.activity.id} accessibilityRole="button" accessibilityLabel={`${h.activity.name}, ${fmtDowMonthDay(h.activity.date)}`} onPress={() => nav.push({ name: 'sessionDetail', activityId: h.activity.id })} style={({ pressed }) => [{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderTopWidth: 1, borderColor: color.border, paddingVertical: 12, paddingHorizontal: 16, backgroundColor: pressed ? color.surface2 : 'transparent' }]}>
               <View style={{ flex: 1, minWidth: 0 }}>

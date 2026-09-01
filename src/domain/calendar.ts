@@ -42,7 +42,7 @@ export function toItem(a: Activity, result: ActivityResult | null, today: ISODat
   const pastDue = !resolved && a.date < today;
   return {
     activity: a, result, status, subtitle: subtitleFor(a, result, status, today), guided,
-    startable: guided && !resolved && !a.paused, // any unresolved guided session can be started (R82); results log to its date
+    startable: guided && !resolved && !a.paused && a.date <= today, // today or past-due (R40b spirit); future sessions reschedule instead
     pastDue,
     recordable: !resolved && a.date === today, // R40b: today or earlier; earlier is the past-due pair of buttons
   };

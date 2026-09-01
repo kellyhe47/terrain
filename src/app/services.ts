@@ -30,6 +30,7 @@ export function createTerrain(db: SqlDriver, opts: { now?: () => string } = {}):
   const repo = new Repo(db);
   const cfg = loadAiConfig();
   const flags: DemoFlags = { ...defaultFlags };
+  try { const saved = repo.getMeta('demo_flags'); if (saved) Object.assign(flags, JSON.parse(saved)); } catch { /* defaults */ }
   const baseModel = buildTextModel(cfg);
   const textModel = new GatedTextModel(baseModel, () => flags);
   const vision = new GatedVisionProvider(buildVisionProvider(cfg), () => flags);

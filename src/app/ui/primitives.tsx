@@ -81,7 +81,7 @@ export function Sheet({ open, onClose, children, title, subtitle }: { open: bool
         {title ? (
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <View><Display size={20} lh={22}>{title}</Display>{subtitle ? <Small style={{ marginTop: 2 }}>{subtitle}</Small> : null}</View>
-            <Pressable accessibilityLabel="Close" onPress={onClose} style={{ padding: 4 }}><Icon name="x" size={18} color={color.text3} /></Pressable>
+            <Pressable accessibilityRole="button" accessibilityLabel="Close" onPress={onClose} style={{ padding: 4 }}><Icon name="x" size={18} color={color.text3} /></Pressable>
           </View>
         ) : null}
         {children}

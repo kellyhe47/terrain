@@ -109,7 +109,7 @@ export class ContextAssembler {
     const payload: ChatPayload = {
       ...base, message,
       week_plan: week.map((a) => ({ id: a.id, date: a.date, name: a.name, type: a.type, source: a.source, status: toItem(a, results.get(a.id) ?? null, base.today).status, paused: a.paused, exercise_ids: (a.exercises ?? []).map((e) => e.exerciseId) })),
-      next_intense_session: intense ? { id: intense.id, name: intense.name, date: intense.date, weekday: DOW_LONG[dow(intense.date)] } : null,
+      next_intense_session: intense ? { id: intense.id, name: intense.name, type: intense.type, date: intense.date, weekday: DOW_LONG[dow(intense.date)] } : null,
       contraindicated_tags: this.memory.activeContraindicatedTags(), violations,
     };
     const req: TextRequest = {

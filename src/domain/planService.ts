@@ -1,5 +1,5 @@
 // Plan service (R17–R23, R28): generation with rails + re-prompt, patch application through the same rails.
-import { addDays, dayOf, type ISODate } from './dates';
+import { addDays, dayOf, weekStart, type ISODate } from './dates';
 import type { Repo } from '../db/repo';
 import type { MemoryService } from './memory';
 import { ContextAssembler, ModelOutputError } from './contextAssembler';
@@ -55,7 +55,7 @@ export class PlanService {
   /** Onboarding: the first week is generated for the current week and (if past mid-week) the next one too. */
   async generateFirstWeeks(asOf: string): Promise<{ weekStart: ISODate; activities: Activity[]; summary: string }> {
     const today = dayOf(asOf);
-    const ws = addDays(today, -new Date(today).getDay());
+    const ws = weekStart(today);
     const acts = await this.generateWeek(ws, asOf);
     const pw = this.repo.getPlanWeek(ws);
     return { weekStart: ws, activities: acts.filter((a) => a.date >= today), summary: pw?.summary ?? '' };
@@ -66,8 +66,7 @@ export class PlanService {
     const touched = new Set<ISODate>();
     const acts = new Map<string, Activity>();
     for (const op of ops) { const a = this.repo.getActivity(op.activity_id); if (!a) return { ok: false, violations: [`activity ${op.activity_id} not found`] }; acts.set(a.id, { ...a }); }
-    const weekStart = addDays(dayOf(asOf), -new Date(dayOf(asOf)).getDay());
-    const weekOf = (d: ISODate) => addDays(d, -new Date(d).getDay());
+    const weekOf = (d: ISODate) => weekStart(d); // local-calendar week (never `new Date(iso)`: that parses as UTC)
     for (const op of ops) {
       const a = acts.get(op.activity_id)!;
       if (op.op === 'move') { touched.add(a.date); a.date = op.to_date; touched.add(op.to_date); }
@@ -79,7 +78,6 @@ export class PlanService {
       const rails = validatePlan(planFromActivities(ws, week), { ...this.railContext(ws), weekStart: ws });
       if (!rails.ok) return { ok: false, violations: rails.violations };
     }
-    void weekStart;
     this.repo.transaction(() => { for (const a of acts.values()) this.repo.saveActivity(a); });
     return { ok: true, touched: [...touched] };
   }

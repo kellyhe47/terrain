@@ -26,7 +26,7 @@ const TABS: Array<{ id: Tab; label: string; icon: string }> = [
   { id: 'today', label: 'Today', icon: 'sun' }, { id: 'calendar', label: 'Calendar', icon: 'calendar' }, { id: 'log', label: '', icon: 'plus' }, { id: 'nora', label: 'Nora', icon: 'chat' }, { id: 'progress', label: 'Progress', icon: 'trend' },
 ];
 const FULLSCREEN = new Set(['gym', 'sprint', 'onboarding', 'formVideo']);
-const NO_STATUS = new Set(['today', 'gym', 'sprint', 'meal']);
+const NO_STATUS = new Set(['today', 'gym', 'sprint', 'meal', 'onboarding', 'formVideo']);
 
 export function Shell() {
   const nav = useNav(); const { toast } = useTerrain();

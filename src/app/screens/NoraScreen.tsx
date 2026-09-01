@@ -18,6 +18,7 @@ export function NoraScreen() {
   const nav = useNav();
   const reduceMotion = useReduceMotion();
   const history = t.chat.history();
+  const lastUser = history.length && history[history.length - 1].role === 'user' ? history[history.length - 1] : null; // an unanswered turn (R47: keeps its Retry until resolved)
   const sharedCount = t.assembler.sharedSignalCount(asOf());
   const offline = t.flags.nora === 'offline' || (globalThis as { navigator?: { onLine?: boolean } }).navigator?.onLine === false;
 
@@ -97,10 +98,10 @@ export function NoraScreen() {
             )}
           </View>
         ) : null}
-        {pending.kind === 'error' ? (
+        {!offline && pending.kind !== 'streaming' && (pending.kind === 'error' || lastUser) ? (
           <View style={{ maxWidth: '85%', backgroundColor: color.surface, borderWidth: 1, borderStyle: 'dashed', borderColor: color.red, borderRadius: radius.md, paddingVertical: 12, paddingHorizontal: 14, alignSelf: 'flex-start' }} accessibilityRole="alert">
             <Body size={13} lh={18}>Nora couldn't reply — connection dropped.</Body>
-            <Pressable accessibilityRole="button" onPress={() => retry(pending.lastUserText)} style={({ pressed }) => [{ marginTop: 8, alignSelf: 'flex-start', borderWidth: 1, borderColor: color.borderStrong, backgroundColor: pressed ? color.surface3 : color.surface2, borderRadius: radius.sm, paddingVertical: 8, paddingHorizontal: 14 }]}>
+            <Pressable accessibilityRole="button" onPress={() => retry(pending.kind === 'error' ? pending.lastUserText : lastUser!.text)} style={({ pressed }) => [{ marginTop: 8, alignSelf: 'flex-start', borderWidth: 1, borderColor: color.borderStrong, backgroundColor: pressed ? color.surface3 : color.surface2, borderRadius: radius.sm, paddingVertical: 8, paddingHorizontal: 14 }]}>
               <Semi c={color.text1} size={12} lh={16}>Retry</Semi>
             </Pressable>
           </View>
