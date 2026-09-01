@@ -14,6 +14,7 @@ export const DEFAULT_TARGETS: Targets = { protein_g: 120, hydration_l: 2.5, step
 
 export class Repo {
   constructor(public readonly db: SqlDriver) {}
+  transaction<T>(fn: () => T): T { return this.db.transaction(fn); }
 
   // ---- meta
   getMeta(key: string): string | null { const r = this.db.get<{ value: string }>('SELECT value FROM meta WHERE key = ?', [key]); return r ? r.value : null; }

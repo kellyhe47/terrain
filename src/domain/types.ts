@@ -1,4 +1,5 @@
 import type { ISODate } from './dates';
+import type { PatchOp } from './chatSchema';
 
 export type SignalType = 'sleep' | 'energy' | 'soreness' | 'stress' | 'steps' | 'hydration' | 'weight';
 export const SIGNAL_TYPES: SignalType[] = ['sleep', 'energy', 'soreness', 'stress', 'steps', 'hydration', 'weight'];
@@ -57,7 +58,7 @@ export interface ChatCard {
   state: CardState;
   title?: string;
   items: string[];         // itemized moves / the safety question
-  ops?: Array<{ op: 'move'; activityId: string; toDate: ISODate } | { op: 'swap_exercise'; activityId: string; fromExerciseId: string; toExerciseId: string }>;
+  ops?: PatchOp[];
   targetActivityId?: string; // safety: session to pause
   appliedNote?: string;
 }
