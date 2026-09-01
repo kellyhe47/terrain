@@ -1,6 +1,6 @@
 // Calendar (PRD §8 R24–R29, R77–R79; §11 R40–R40b). Day / week / month are projections of one activity store — every
 // count and dot here is re-read from `t` on render. Design markup lines 581–743, script 1586–1630 / 1701–1721 / 1880–1915.
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, View } from 'react-native';
 import { useTerrain } from '../state';
 import { useNav } from '../nav';
@@ -32,6 +32,8 @@ export function CalendarScreen() {
   const [month, setMonth] = useState(() => { const d = parseISODate(today); return { y: d.getFullYear(), m: d.getMonth() }; });
   const [monthSel, setMonthSel] = useState<ISODate | null>(null);
   const [sheet, setSheet] = useState<SheetState>(null);
+  // Log grid's Activity tile (R7) lands here with the Add sheet open.
+  useEffect(() => { const g = globalThis as { __terrainOpenAdd?: boolean }; if (g.__terrainOpenAdd) { delete g.__terrainOpenAdd; setSheet({ kind: 'add' }); } }, []);
   const [generating, setGenerating] = useState(false);
 
   const targets = t.repo.getTargets();
