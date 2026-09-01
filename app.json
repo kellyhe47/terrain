@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "Terrain",
+    "slug": "terrain",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0B0B0B",
+    "splash": { "backgroundColor": "#0B0B0B" },
+    "ios": { "supportsTablet": false, "infoPlist": { "NSCameraUsageDescription": "Terrain uses the camera to snap a photo of a meal for an estimate." } },
+    "android": { "permissions": ["CAMERA"], "adaptiveIcon": { "backgroundColor": "#0B0B0B", "foregroundImage": "./assets/android-icon-foreground.png", "backgroundImage": "./assets/android-icon-background.png", "monochromeImage": "./assets/android-icon-monochrome.png" }, "predictiveBackGestureEnabled": false },
+    "web": { "favicon": "./assets/favicon.png", "bundler": "metro", "output": "single" },
+    "plugins": ["expo-sqlite", "expo-font", "expo-video", "expo-asset", "expo-image", ["expo-camera", { "cameraPermission": "Terrain uses the camera to snap a photo of a meal for an estimate." }]]
+  }
+}

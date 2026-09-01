@@ -25,7 +25,7 @@ docs/build       this plan, board, critic findings, built-not-shown record
 ```
 
 ## Commands
-- `npm install` · `npm run typecheck` · `npm test` (vitest: unit + fixtures) · `npm run web` (Expo web on :8081) · `npm run ci` (typecheck + test).
+- `npm install` · `npm run typecheck` · `npm test` (vitest: unit + fixtures) · `npm run web` (Expo web on :8090) · `npm run ci` (typecheck + test).
 - Live fixture 07: `VISION_PROVIDER=openrouter VISION_API_KEY=… npm run test:live`.
 
 ## Invariants to enforce mechanically

@@ -2,7 +2,7 @@
 
 | # | Ticket | Status | Notes |
 |---|--------|--------|-------|
-| T01 | Scaffold Expo app, web, fonts, tokens, vitest, CI, sql.js driver verified on web+node | TODO | |
+| T01 | Scaffold Expo app, web, fonts, tokens, vitest, CI, sql.js driver verified on web+node | DONE | web on :8090, sql.js asm verified in node + Expo web |
 | T02 | DB schema + repositories (profile, targets, signals, activities, sessions, meals, supplements, memory, PRs, chat, plan weeks) | TODO | |
 | T03 | Readiness engine + fixtures 01/02/03 + explanation fallback line | TODO | |
 | T04 | Exercise library + nutrient reference seeds (typed seams) | TODO | |
