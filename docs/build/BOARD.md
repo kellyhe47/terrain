@@ -18,5 +18,5 @@
 | T14 | UI: Nora chat (patch card, safety card, error/offline/empty) + What Nora knows + Settings (targets, resets, disclaimer) | DONE | Nora/Knows/Settings agent dispatched 2026-09-01 |
 | T15 | UI: Nutrition + Progress + Session detail + PR entry sheet | DONE | Progress/Nutrition agent dispatched 2026-09-01 |
 | T16 | UI: Onboarding wizard → build → preview/fail → Today | DONE | Onboarding agent dispatched 2026-09-01 |
-| T17 | Critic pass (every rail state at 390×844) → CRITIC.md; resolve/accept findings | WIP | critic agent dispatched 2026-09-01 |
+| T17 | Critic pass (every rail state at 390×844) → CRITIC.md; resolve/accept findings | WIP | round 1: 1 P0 + 9 P1 + 26 P2 → all fixed/accepted (CRITIC.md resolution log); round-2 verification critic dispatched |
 | T18 | Final: BUILT_NOT_SHOWN.md, README, CI green from clean checkout, commit | TODO | |
