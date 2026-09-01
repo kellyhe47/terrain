@@ -144,8 +144,8 @@ function MicroCell({ info, est, tg }: { info: MicroInfo; est: MicroEstimate; tg:
   return (
     <View style={{ width: '46%', flexGrow: 1 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
-        <Semi size={12}>{info.label}</Semi>
-        <Tiny style={{ fontVariant: ['tabular-nums'] }}>{fmtMicro(est.value, tg.target, info, tg.ceiling)}{tg.fromUser ? '' : <Tiny> · ref</Tiny>}</Tiny>
+        <Semi size={12} numberOfLines={1} style={{ flexShrink: 1 }}>{info.label}</Semi>
+        <Tiny numberOfLines={1} style={{ fontVariant: ['tabular-nums'], flexShrink: 0, marginLeft: 6 }}>{fmtMicro(est.value, tg.target, info, tg.ceiling)}{tg.fromUser ? '' : <Tiny size={9}> ref</Tiny>}</Tiny>
       </View>
       <View style={{ marginTop: 6 }}><Bar pct={tg.target > 0 ? (est.value / tg.target) * 100 : 0} fill={weak ? FILL_WEAK : FILL} height={3} /></View>
     </View>

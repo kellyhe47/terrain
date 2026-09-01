@@ -219,8 +219,8 @@ export function fakeGaps(p: GapsPayload): unknown {
   const items = p.gaps.ranked.slice(0, 3).map((g) => ({ key: g.key, name: g.label, stat: g.key === 'omega3_g' ? `${(g.avg_per_day / 1.1).toFixed(1).replace(/\.0$/, '')} serving / wk` : `avg ${fmt(g.avg_per_day, g.unit)} / ${fmt(g.target, g.unit)}`, note: notes[g.key] ?? 'Below target in the last two weeks.' }));
   const covered = p.gaps.supplements.filter((s) => s.adherence >= 0.7 && s.nutrient_key).map((s) => s.name);
   const summary = items.length
-    ? `Protein and calories are ${p.gaps.on_track.includes('protein_g') && p.gaps.on_track.includes('calories') ? 'broadly on track on training days' : 'part of the picture'} — the gaps above are the highest-leverage fixes.${covered.length ? ` ${covered.join(' and ')} ${covered.length > 1 ? 'are' : 'is'} covering their nutrients.` : ''}`
+    ? `Protein and calories are ${p.gaps.on_track.includes('protein_g') && p.gaps.on_track.includes('calories') ? 'broadly on track on training days' : 'part of the picture'} — the gaps above are the highest-leverage fixes.${covered.length ? ` ${covered.join(' and ')} ${covered.length > 1 ? 'are covering their nutrients' : 'is covering its nutrient'}.` : ''}`
     : 'Nothing stands out in the last 14 days — keep logging meals and I\'ll flag drift early.';
   return { items, summary };
 }
-const fmt = (v: number, unit: string) => `${unit === 'g' && v < 10 ? +v.toFixed(1) : Math.round(v)} ${unit}`;
+const fmt = (v: number, unit: string) => `${unit === 'g' && v < 10 ? +v.toFixed(1) : Math.round(v).toLocaleString('en-US')} ${unit}`;

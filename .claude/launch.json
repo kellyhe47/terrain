@@ -1,6 +1,7 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "terrain-web", "runtimeExecutable": "npx", "runtimeArgs": ["expo", "start", "--web", "--port", "8090"], "port": 8090 }
+    { "name": "terrain-web", "runtimeExecutable": "npx", "runtimeArgs": ["expo", "start", "--web", "--port", "8090"], "port": 8090 },
+    { "name": "designs", "runtimeExecutable": "npx", "runtimeArgs": ["--yes", "serve", "-l", "8091", "designs"], "port": 8091 }
   ]
 }
