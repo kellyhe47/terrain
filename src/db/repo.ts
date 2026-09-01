@@ -149,8 +149,8 @@ export class Repo {
   saveChat(m: ChatMessage): void { this.db.run('INSERT OR REPLACE INTO chat_messages (id, role, text, card_json, created_at) VALUES (?, ?, ?, ?, ?)', [m.id, m.role, m.text, m.card ? JSON.stringify(m.card) : null, m.createdAt]); }
 
   // ---- plan weeks
-  getPlanWeek(weekStart: ISODate): PlanWeek | null { const r = this.db.get('SELECT * FROM plan_weeks WHERE week_start = ?', [weekStart]); return r ? { weekStart: String(r.week_start), status: r.status as PlanWeek['status'], summary: String(r.summary), generatedAt: String(r.generated_at) } : null; }
-  savePlanWeek(w: PlanWeek): void { this.db.run('INSERT OR REPLACE INTO plan_weeks (week_start, status, summary, generated_at) VALUES (?, ?, ?, ?)', [w.weekStart, w.status, w.summary, w.generatedAt]); }
+  getPlanWeek(weekStart: ISODate): PlanWeek | null { const r = this.db.get('SELECT * FROM plan_weeks WHERE week_start = ?', [weekStart]); return r ? { weekStart: String(r.week_start), status: r.status as PlanWeek['status'], summary: String(r.summary), restReason: String(r.rest_reason ?? ''), generatedAt: String(r.generated_at) } : null; }
+  savePlanWeek(w: PlanWeek): void { this.db.run('INSERT OR REPLACE INTO plan_weeks (week_start, status, summary, rest_reason, generated_at) VALUES (?, ?, ?, ?, ?)', [w.weekStart, w.status, w.summary, w.restReason ?? '', w.generatedAt]); }
 }
 
 export function newId(prefix = 'id'): string { return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`; }

@@ -176,7 +176,8 @@ function weekStartOf(date: string): string { return addDays(date, -dow(date)); }
 export function fakeExplanation(p: ExplanationPayload): string {
   const r = p.readiness; if (!r || r.score == null) return 'Log a couple of signals and I\'ll score your readiness.';
   const comps = r.components;
-  const strong = comps.filter((c) => c.score >= 75 && c.key !== 'load').sort((a, b) => b.score - a.score);
+  const pref = ['sleep', 'soreness', 'energy', 'stress', 'steps', 'hydration', 'protein', 'weight'];
+  const strong = comps.filter((c) => c.score >= 75 && c.key !== 'load').sort((a, b) => pref.indexOf(a.key) - pref.indexOf(b.key));
   const weak = comps.filter((c) => c.score < 70 && c.key !== 'load').sort((a, b) => a.score - b.score);
   const phrase: Record<string, (c: { detail: string; score: number }) => string> = {
     sleep: (c) => c.score >= 75 ? `${c.detail.replace('sleep ', '')} of sleep` : `only ${c.detail.replace('sleep ', '')} of sleep`,

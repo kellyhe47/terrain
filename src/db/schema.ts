@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS supplement_takes (supplement_id TEXT NOT NULL REFEREN
 CREATE TABLE IF NOT EXISTS memory (id TEXT PRIMARY KEY, type TEXT NOT NULL, text TEXT NOT NULL, date TEXT NOT NULL, tags_json TEXT NOT NULL DEFAULT '[]', resolved INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS prs (id TEXT PRIMARY KEY, activity TEXT NOT NULL, kind TEXT NOT NULL, result TEXT NOT NULL, date TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS chat_messages (id TEXT PRIMARY KEY, role TEXT NOT NULL, text TEXT NOT NULL, card_json TEXT, created_at TEXT NOT NULL);
-CREATE TABLE IF NOT EXISTS plan_weeks (week_start TEXT PRIMARY KEY, status TEXT NOT NULL, summary TEXT NOT NULL DEFAULT '', generated_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS plan_weeks (week_start TEXT PRIMARY KEY, status TEXT NOT NULL, summary TEXT NOT NULL DEFAULT '', rest_reason TEXT NOT NULL DEFAULT '', generated_at TEXT NOT NULL);
 `;
 
 export function migrate(db: SqlDriver): void {

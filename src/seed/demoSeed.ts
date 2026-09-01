@@ -73,6 +73,7 @@ export function seedDemo(repo: Repo, installedAt: string): void {
       const day = { sleep: r1(6.2 + rand() * 2.2), energy: 2 + Math.floor(rand() * 4), soreness: 1 + Math.floor(rand() * 4), stress: 1 + Math.floor(rand() * 4), steps: 5000 + Math.round(rand() * 15) * 500, hydration: r1(1.5 + rand() * 1.5), weight: r1(w) };
       if (i === 0) Object.assign(day, { sleep: 7.5, energy: 4, soreness: 2, stress: 2, steps: 8500, hydration: 2.0, weight: 154.5 });
       if (i === 1) Object.assign(day, { sleep: 6.5, energy: 3, soreness: 3, stress: 2, steps: 11000, hydration: 2.5, weight: 154.8 });
+      if (i === 7) day.weight = 155.4; // ≈ −0.9 lbs this week on Today's hero row
       const skipSome = i > 2 && rand() < 0.12; // a few days with partial logging
       for (const [type, value] of Object.entries(day)) { if (skipSome && (type === 'hydration' || type === 'stress')) continue; repo.upsertSignal({ date: d, type: type as any, value: value as number, loggedAt: t }); }
     }
@@ -126,12 +127,12 @@ export function seedDemo(repo: Repo, installedAt: string): void {
       }
       save(a, res);
     }
-    repo.savePlanWeek({ weekStart: ws, status: 'planned', summary: '4 training days · Saturday run kept · nothing that loads a bent knee under depth.', generatedAt: installedAt });
+    repo.savePlanWeek({ weekStart: ws, status: 'planned', summary: '4 training days · Saturday run kept · nothing that loads a bent knee under depth.', restReason: 'Two hard sessions back-to-back this week. Today is for absorbing them — easy walking and sleep are the workout.', generatedAt: installedAt });
     // next week: pending plan
     const nx = addDays(ws, 7);
     const nextSprint = sprint(addDays(nx, 2));
     for (const a of [gym(addDays(nx, 1), 'Upper body', 'bench focus', UPPER_A), nextSprint, gym(addDays(nx, 4), 'Lower body', 'legs & hinge', LOWER), gym(addDays(nx, 5), 'Upper body', 'pull emphasis', UPPER_B), run(addDays(nx, 6))]) save(a);
-    repo.savePlanWeek({ weekStart: nx, status: 'planned', summary: '4 training days · Saturday run kept.', generatedAt: installedAt });
+    repo.savePlanWeek({ weekStart: nx, status: 'planned', summary: '4 training days · Saturday run kept.', restReason: 'Recovery day between two lifting sessions — walk, sleep, eat. The work is already done.', generatedAt: installedAt });
 
     // ---- meals: 14 days incl. today (2 so far) — names key into the nutrient reference
     const plan: Array<[number, string, string][]> = [];

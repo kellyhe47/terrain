@@ -43,7 +43,7 @@ export class PlanService {
       const today = dayOf(asOf);
       this.repo.transaction(() => {
         for (const a of acts) { if (a.date < today) continue; this.repo.saveActivity(a); }
-        this.repo.savePlanWeek({ weekStart, status: 'planned', summary: plan.summary, generatedAt: asOf });
+        this.repo.savePlanWeek({ weekStart, status: 'planned', summary: plan.summary, restReason: plan.rest_reason, generatedAt: asOf });
       });
       return acts;
     } catch (e) {

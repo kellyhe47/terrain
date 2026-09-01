@@ -64,4 +64,4 @@ export interface ChatCard {
 }
 export interface ChatMessage { id: string; role: 'user' | 'nora'; text: string; card: ChatCard | null; createdAt: string; }
 
-export interface PlanWeek { weekStart: ISODate; status: 'planned' | 'regenerating'; summary: string; generatedAt: string; }
+export interface PlanWeek { weekStart: ISODate; status: 'planned' | 'regenerating'; summary: string; restReason?: string; generatedAt: string; }
