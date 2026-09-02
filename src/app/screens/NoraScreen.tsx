@@ -23,6 +23,8 @@ export function NoraScreen() {
   const offline = t.flags.nora === 'offline' || (globalThis as { navigator?: { onLine?: boolean } }).navigator?.onLine === false;
 
   const [draft, setDraft] = useState('');
+  const draftRef = useRef('');
+  const inputRef = useRef<TextInput>(null);
   const [pending, setPending] = useState<Pending>({ kind: 'idle' });
   const scroll = useRef<ScrollView>(null);
   const runId = useRef(0);
@@ -30,7 +32,7 @@ export function NoraScreen() {
   // Draft handed over from another screen (e.g. "Ask Nora" on a session) prefills the composer once.
   useEffect(() => {
     const g = globalThis as { __terrainDraft?: unknown };
-    if (typeof g.__terrainDraft === 'string') { setDraft(g.__terrainDraft); delete g.__terrainDraft; }
+    if (typeof g.__terrainDraft === 'string') { setDraft(g.__terrainDraft); draftRef.current = g.__terrainDraft; inputRef.current?.setNativeProps({ text: g.__terrainDraft }); delete g.__terrainDraft; }
   }, []);
 
   const scrollToEnd = useCallback(() => { scroll.current?.scrollToEnd({ animated: !reduceMotion }); }, [reduceMotion]);
@@ -48,9 +50,9 @@ export function NoraScreen() {
   }, [bump]);
 
   const send = () => {
-    const text = draft.trim();
+    const text = draftRef.current.trim();
     if (!text || pending.kind === 'streaming') return;
-    setDraft('');
+    draftRef.current = ''; setDraft(''); inputRef.current?.clear();
     run(text, (onToken) => t.chat.send(text, asOf(), onToken));
   };
   const retry = (lastUserText: string) => run(lastUserText, (onToken) => t.chat.reply(lastUserText, asOf(), onToken));
@@ -111,7 +113,7 @@ export function NoraScreen() {
 
       <View style={{ paddingVertical: 12, paddingHorizontal: 20, borderTopWidth: 1, borderColor: color.border, flexDirection: 'row', gap: 8 }}>
         <TextInput
-          value={draft} onChangeText={setDraft} onSubmitEditing={send} blurOnSubmit={false} returnKeyType="send"
+          ref={inputRef} defaultValue={draft} onChangeText={(v) => { draftRef.current = v; }} onSubmitEditing={send} blurOnSubmit={false} returnKeyType="send"
           placeholder="Message Nora…" placeholderTextColor={color.text3} accessibilityLabel="Message Nora"
           style={{ flex: 1, minWidth: 0, backgroundColor: color.surface, borderWidth: 1, borderColor: color.border, borderRadius: radius.sm, paddingVertical: 12, paddingHorizontal: 14, color: color.text1, fontFamily: font.body, fontSize: 14 }}
         />

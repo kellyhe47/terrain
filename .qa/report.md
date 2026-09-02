@@ -63,3 +63,21 @@ Driven with `idb` (taps/swipes/typing injected into the simulator) and `simctl` 
 | Q12 | P2 | F7 · reply | Any real-model reply | 62 | Short, weekday names | Long replies with raw ISO dates |
 
 Unreached/escalations: native simulator panel (needs the `xcode-select` command above, your password); real camera capture (simulator has no camera); the user's physical-phone network path (verified the server is reachable at 100.110.131.137:8090 once running).
+
+## Fix verification (same session, simulator re-walk after `git` commit of the fixes)
+
+| # | Fix | Verified on device |
+|---|---|---|
+| Q1 | React Native's fetch cannot stream; the client now parses the buffered SSE body | PASS — Today streams a real explanation (screen 104) |
+| Q2 | Display faces get a minimum line-height on native (web keeps the design's tight leading) | PASS — "SEP 1", "84", "UPPER BODY", numerals fully visible (104) |
+| Q3 | Bottom hint and top overlay no longer swallow touches; the gesture layer opens the panel for swipes/taps in those zones | PASS — swipe from y=845 and y=820 and a tap on the hint all open the panel |
+| Q4 | A tap that closes the panel is ignored by the tap-to-advance logic for 500 ms | PASS — exercise stays at 1 of 6 after scrim close |
+| Q5 | User bubble wrapped in a row with flexShrink; composer made uncontrolled (controlled `value` dropped trailing keystrokes when Send followed typing) | PASS — 80-char message renders on two lines (107); fast type-then-send keeps the full text |
+| Q6 | Safety card copy composed from the target activity, not the model's label | not re-driven (deterministic; covered by `08_safety_boundary` test) |
+| Q7 | Prompt asks for ≤ 2 sentences / 200 chars; UI caps at ~220 on a sentence boundary | PASS — three-line explanation under the gauge (104) |
+| Q8 | Auto-capture waits for the permission answer | not re-driven (needs a fresh permission state) |
+| Q9 | Arrows use text presentation (U+FE0E) | not re-driven |
+| Q11/Q12 | Plan prompt sizes sessions by minutes; chat prompt forbids ISO dates | not re-driven |
+| Q10 | Left as-is (done/total is the PRD rule) — noted for product review |
+
+Also fixed during the pass: the dev server had been started with `CI=1`, which disables Metro file watching (edits never reached the device); `npm start` no longer does that.

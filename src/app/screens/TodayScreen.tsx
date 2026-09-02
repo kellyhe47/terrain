@@ -50,7 +50,7 @@ export function TodayScreen() {
     let acc = ''; const started = Date.now();
     t.assembler.explainReadiness(readiness, now, (chunk) => { if (id !== runId.current) return; acc += chunk; if (!reduceMotion) { setPhase('stream'); setText(capText(acc)); } })
       .then((full) => { if (id !== runId.current) return; const wait = Math.max(0, 600 - (Date.now() - started)); setTimeout(() => { if (id !== runId.current) return; setText(capText(full)); setPhase('done'); }, reduceMotion ? wait : 0); })
-      .catch(() => { if (id === runId.current) setPhase('error'); });
+      .catch((e: unknown) => { console.warn('[today] explanation failed:', e instanceof Error ? `${e.name}: ${e.message}` : String(e)); if (id === runId.current) setPhase('error'); });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scoreKey, today, reduceMotion, t]);
   useEffect(() => { explain(); }, [explain, version]);
