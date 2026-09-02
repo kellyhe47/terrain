@@ -7,7 +7,7 @@ const URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 export class OpenRouterTextModel implements TextModel {
   readonly name: string;
-  constructor(private cfg: AiConfig, private fetchFn: typeof fetch = fetch) { this.name = `openrouter:${cfg.textModel}@${cfg.pinnedProvider}`; }
+  constructor(private cfg: AiConfig, private fetchFn: typeof fetch = (input, init) => fetch(input, init)) { this.name = `openrouter:${cfg.textModel}@${cfg.pinnedProvider}`; }
 
   async complete(req: TextRequest, onToken?: (chunk: string) => void): Promise<TextResponse> {
     if (!this.cfg.openrouterKey) throw new ModelUnavailableError('no OpenRouter key');

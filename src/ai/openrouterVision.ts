@@ -5,7 +5,7 @@ import { VisionUnavailableError } from '../domain/vision/provider';
 
 export class OpenRouterVisionProvider implements VisionProvider {
   readonly name: string;
-  constructor(private key: string | null, private model: string, private fetchFn: typeof fetch = fetch) { this.name = `openrouter-vision:${model}`; }
+  constructor(private key: string | null, private model: string, private fetchFn: typeof fetch = (input, init) => fetch(input, init)) { this.name = `openrouter-vision:${model}`; }
   async estimate(image: VisionImage, prompt: string, jsonSchema: Record<string, unknown>): Promise<unknown> {
     if (!this.key) throw new VisionUnavailableError('no vision key');
     const body = {

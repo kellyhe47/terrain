@@ -44,7 +44,7 @@ export function NoraScreen() {
     try { p = start(onToken); } catch { p = Promise.reject(new Error('send failed')); }
     bump(); // the user turn is persisted synchronously before the model call
     p.then(() => { if (id !== runId.current) return; setPending({ kind: 'idle' }); bump(); })
-      .catch(() => { if (id !== runId.current) return; setPending({ kind: 'error', lastUserText: userText }); bump(); });
+      .catch((e: unknown) => { console.warn('[nora] reply failed:', e instanceof Error ? `${e.name}: ${e.message}` : String(e), (e as { violations?: string[] })?.violations ?? ''); if (id !== runId.current) return; setPending({ kind: 'error', lastUserText: userText }); bump(); });
   }, [bump]);
 
   const send = () => {
