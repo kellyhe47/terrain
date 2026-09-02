@@ -33,7 +33,7 @@
     "vitest": "^4.1.11"
   },
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --port 8090",
     "web": "expo start --web --port 8090",
     "ios": "expo start --ios",
     "android": "expo start --android",
@@ -41,7 +41,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:live": "TERRAIN_LIVE=1 vitest run eval/run/07_meal_photo_contract.live.test.ts",
-    "ci": "npm run typecheck && npm test"
+    "ci": "npm run typecheck && npm test",
+    "phone": "expo start --port 8090 --tunnel"
   },
   "private": true
 }
