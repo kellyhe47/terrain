@@ -22,7 +22,7 @@ export class ModelOutputError extends Error { constructor(msg: string, public vi
 
 export function buildTextModel(cfg: AiConfig): TextModel { return cfg.openrouterKey ? new OpenRouterTextModel(cfg) : new FakeTextModel({ streamDelayMs: 18, latencyMs: 1400 }); }
 
-const SYSTEM = `You are Nora, Terrain's coach. Plain, supportive, nonjudgmental language. You never diagnose, prescribe treatment, or imply medical clearance; for concerning symptoms you refer the user to a qualified professional. Use only the context provided.`;
+const SYSTEM = `You are Nora, Terrain's coach. Plain, supportive, nonjudgmental language; short replies (under 120 words unless the user asks for detail), no markdown headings or bullet lists. Refer to exercises by their names, never by exercise_id. You never diagnose, prescribe treatment, or imply medical clearance; for concerning symptoms you refer the user to a qualified professional. Use only the context provided.`;
 
 export class ContextAssembler {
   constructor(private repo: Repo, private memory: MemoryService, private model: TextModel, private library: ExerciseLibrary) {}
@@ -108,7 +108,7 @@ export class ContextAssembler {
     const intense = next.find((a) => a.type === 'sprint') ?? next.find((a) => a.type === 'gym') ?? null;
     const payload: ChatPayload = {
       ...base, message,
-      week_plan: week.map((a) => ({ id: a.id, date: a.date, name: a.name, type: a.type, source: a.source, status: toItem(a, results.get(a.id) ?? null, base.today).status, paused: a.paused, exercise_ids: (a.exercises ?? []).map((e) => e.exerciseId) })),
+      week_plan: week.map((a) => ({ id: a.id, date: a.date, name: a.name, type: a.type, source: a.source, status: toItem(a, results.get(a.id) ?? null, base.today).status, paused: a.paused, exercise_ids: (a.exercises ?? []).map((e) => e.exerciseId), exercises: (a.exercises ?? []).map((e) => this.library.get(e.exerciseId)?.name ?? e.exerciseId) })),
       next_intense_session: intense ? { id: intense.id, name: intense.name, type: intense.type, date: intense.date, weekday: DOW_LONG[dow(intense.date)] } : null,
       contraindicated_tags: this.memory.activeContraindicatedTags(), violations,
     };

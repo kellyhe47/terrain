@@ -5,7 +5,7 @@ export interface IntakeSummary { goal: string; goal_text: string; days_per_week:
 export interface MemorySummary { injuries: Array<{ id: string; text: string; tags: string[]; resolved: boolean; date: ISODate }>; preferences: string[]; context: string[]; }
 export interface SessionSummary { id: string; date: ISODate; name: string; type: string; status: string; difficulty?: number; pain?: boolean; pain_where?: string; note?: string; paused?: boolean; }
 export interface LibraryRow { id: string; name: string; pattern: string; tags: string[]; equipment: string[]; phases: string[]; start_weight_lb: number; reps: number; sets: number; }
-export interface WeekPlanRow { id: string; date: ISODate; name: string; type: string; source: string; status: string; paused: boolean; exercise_ids: string[]; }
+export interface WeekPlanRow { id: string; date: ISODate; name: string; type: string; source: string; status: string; paused: boolean; exercise_ids: string[]; exercises: string[]; }
 
 export interface BaseContext {
   today: ISODate; as_of: string; intake: IntakeSummary | null;
