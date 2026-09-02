@@ -4,7 +4,7 @@ Last updated: 2026-09-01. Owner session: Claude Code. Board: `docs/build/BOARD.m
 Sources of truth in precedence order: PRD §0 (designs > fixtures > PRD > arch diagram). Decisions there are closed.
 
 ## Stack (decided)
-- Expo SDK 57, TypeScript, React Native + react-native-web (browser QA at 390×844). No expo-router: a small in-app stack navigator (`src/app/nav`) so "return to whichever it was opened from" (R62) is trivial.
+- Expo SDK 54, TypeScript, React Native + react-native-web (browser QA at 390×844). No expo-router: a small in-app stack navigator (`src/app/nav`) so "return to whichever it was opened from" (R62) is trivial.
 - SQLite behind a sync `SqlDriver` seam (`src/db/driver.ts`): `expo-sqlite` on iOS/Android, `sql.js` (asm build, no wasm file) on web + node tests. Web persists the DB image to localStorage.
 - zod schemas for every model output (plan, patch, chat, meal estimate, injury tags). vitest for domain tests + fixture runner. GitHub Actions CI.
 - Fonts: Anton (display) + Archivo (body) via @expo-google-fonts. Dark only. Tokens copied from the design's `:root` (`src/theme/tokens.ts`).
