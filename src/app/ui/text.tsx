@@ -1,11 +1,16 @@
 import React from 'react';
-import { Text, type TextProps, type TextStyle } from 'react-native';
+import { Platform, Text, type TextProps, type TextStyle } from 'react-native';
 import { color, font } from '../../theme/tokens';
 
 type P = TextProps & { c?: string; size?: number; lh?: number; style?: TextStyle | TextStyle[] };
-const mk = (base: TextStyle) => ({ c, size, lh, style, ...rest }: P) => (
-  <Text {...rest} style={[base, c ? { color: c } : null, size ? { fontSize: size } : null, lh ? { lineHeight: lh } : null, style]} />
-);
+// iOS/Android clip glyph tops when lineHeight is tighter than Anton's ascent; the web tolerates the design's .95 leading.
+const MIN_DISPLAY_LEADING = 1.16;
+const mk = (base: TextStyle) => ({ c, size, lh, style, ...rest }: P) => {
+  const fs = size ?? base.fontSize ?? 14;
+  let lineHeight = lh ?? base.lineHeight;
+  if (Platform.OS !== 'web' && base.fontFamily === font.display) lineHeight = Math.max(lineHeight ?? 0, Math.round(fs * MIN_DISPLAY_LEADING));
+  return <Text {...rest} style={[base, c ? { color: c } : null, size ? { fontSize: size } : null, lineHeight ? { lineHeight } : null, style]} />;
+};
 /** Anton display, uppercase, tight leading. */
 export const Display = mk({ fontFamily: font.display, textTransform: 'uppercase', color: color.text1, letterSpacing: 0.3, fontSize: 26, lineHeight: 26 * 0.98 });
 /** Anton numeral, tabular. */

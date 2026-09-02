@@ -62,7 +62,9 @@ export function CameraStage({ onCapture, onClose }: { onCapture: (c: Capture) =>
     onCapture(capture);
   };
   const shutterRef = useRef(shutter); shutterRef.current = shutter;
-  useEffect(() => { const id = setTimeout(() => { shutterRef.current(); }, AUTO_MS); return () => clearTimeout(id); }, []);
+  // R16 auto-capture starts only once the permission question is settled (granted, denied, or not askable); the browser has no camera and resolves at once.
+  const settled = Platform.OS === 'web' || (!!perm && (perm.granted || !perm.canAskAgain || perm.status === 'denied'));
+  useEffect(() => { if (!settled) return; const id = setTimeout(() => { shutterRef.current(); }, AUTO_MS); return () => clearTimeout(id); }, [settled]);
 
   const round = (extra?: object) => [{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center' } as const, extra];
   return (

@@ -40,14 +40,16 @@ export function TodayScreen() {
   // R6: explanation phases shimmer → stream → done; deterministic fallback on failure. Score never waits on it.
   const [phase, setPhase] = useState<Phase>('shimmer');
   const [text, setText] = useState('');
+  // R6 guard: the explanation is a caption under the gauge, not an essay — cap at ~220 characters on a sentence boundary.
+  const capText = (s: string) => { if (s.length <= 220) return s; const cut = s.slice(0, 220); const end = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('.')); return end > 80 ? cut.slice(0, end + 1) : cut.trimEnd() + '…'; };
   const runId = useRef(0);
   const scoreKey = readiness.kind === 'score' ? `${readiness.score}:${readiness.loggedCount}` : 'none';
   const explain = useCallback(() => {
     if (readiness.kind !== 'score') return;
     const id = ++runId.current; setPhase('shimmer'); setText('');
     let acc = ''; const started = Date.now();
-    t.assembler.explainReadiness(readiness, now, (chunk) => { if (id !== runId.current) return; acc += chunk; if (!reduceMotion) { setPhase('stream'); setText(acc); } })
-      .then((full) => { if (id !== runId.current) return; const wait = Math.max(0, 600 - (Date.now() - started)); setTimeout(() => { if (id !== runId.current) return; setText(full); setPhase('done'); }, reduceMotion ? wait : 0); })
+    t.assembler.explainReadiness(readiness, now, (chunk) => { if (id !== runId.current) return; acc += chunk; if (!reduceMotion) { setPhase('stream'); setText(capText(acc)); } })
+      .then((full) => { if (id !== runId.current) return; const wait = Math.max(0, 600 - (Date.now() - started)); setTimeout(() => { if (id !== runId.current) return; setText(capText(full)); setPhase('done'); }, reduceMotion ? wait : 0); })
       .catch(() => { if (id === runId.current) setPhase('error'); });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scoreKey, today, reduceMotion, t]);

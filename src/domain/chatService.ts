@@ -27,7 +27,8 @@ export class ChatService {
     let card: ChatCard | null = null;
     if (r.safety.flagged) {
       const target = r.safety.action ? this.repo.getActivity(r.safety.action.activity_id) : null;
-      card = { kind: 'safety', state: 'proposed', title: 'Safety check', items: [r.safety.action?.label ?? 'Pause your next intense session until you\'ve been seen?'], targetActivityId: target?.id };
+      const label = target ? `Pause ${DOW_LONG[dow(target.date)]}'s ${target.type === 'sprint' ? 'sprint' : target.name.toLowerCase()} session until you've been seen?` : 'Pause your next intense session until you\'ve been seen?';
+      card = { kind: 'safety', state: 'proposed', title: 'Safety check', items: [label], targetActivityId: target?.id };
     } else if (r.target_proposal) {
       card = { kind: 'target', state: 'proposed', title: 'Proposed target change', items: [r.target_proposal.reason], target: { key: r.target_proposal.key, value: r.target_proposal.value } };
     } else if (r.plan_patch) {

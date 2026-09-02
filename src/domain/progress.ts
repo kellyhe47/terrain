@@ -38,11 +38,11 @@ export function signalTrends(repo: Repo, today: ISODate): SignalTrend[] {
     if (rel < 0.03) return { type, label, points: pts, direction: '→ steady', tone: 'neutral' as const };
     const up = delta > 0;
     let direction: string;
-    if (type === 'weight') direction = `${up ? '↗ +' : '↘ −'}${Math.abs(delta).toFixed(1)} lbs`;
-    else if (type === 'sleep') direction = `${up ? '↗ +' : '↘ −'}${Math.abs(delta).toFixed(1)} h`;
-    else if (type === 'hydration') direction = `${up ? '↗ +' : '↘ −'}${Math.abs(delta).toFixed(1)} L`;
-    else if (type === 'steps') direction = `${up ? '↗ +' : '↘ −'}${Math.round(Math.abs(delta)).toLocaleString('en-US')}`;
-    else direction = up ? '↗ rising' : '↘ easing';
+    if (type === 'weight') direction = `${up ? '↗\uFE0E +' : '↘\uFE0E −'}${Math.abs(delta).toFixed(1)} lbs`;
+    else if (type === 'sleep') direction = `${up ? '↗\uFE0E +' : '↘\uFE0E −'}${Math.abs(delta).toFixed(1)} h`;
+    else if (type === 'hydration') direction = `${up ? '↗\uFE0E +' : '↘\uFE0E −'}${Math.abs(delta).toFixed(1)} L`;
+    else if (type === 'steps') direction = `${up ? '↗\uFE0E +' : '↘\uFE0E −'}${Math.round(Math.abs(delta)).toLocaleString('en-US')}`;
+    else direction = up ? '↗\uFE0E rising' : '↘\uFE0E easing';
     const good = inverted ? !up : up;
     const tone: SignalTrend['tone'] = type === 'weight' ? 'neutral' : good ? 'good' : 'bad';
     return { type, label, points: pts, direction, tone };

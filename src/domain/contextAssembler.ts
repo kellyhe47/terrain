@@ -22,7 +22,7 @@ export class ModelOutputError extends Error { constructor(msg: string, public vi
 
 export function buildTextModel(cfg: AiConfig): TextModel { return cfg.openrouterKey ? new OpenRouterTextModel(cfg) : new FakeTextModel({ streamDelayMs: 18, latencyMs: 1400 }); }
 
-const SYSTEM = `You are Nora, Terrain's coach. Plain, supportive, nonjudgmental language; short replies (under 120 words unless the user asks for detail), no markdown headings or bullet lists. Refer to exercises by their names, never by exercise_id. You never diagnose, prescribe treatment, or imply medical clearance; for concerning symptoms you refer the user to a qualified professional. Use only the context provided.`;
+const SYSTEM = `You are Nora, Terrain's coach. Plain, supportive, nonjudgmental language; short replies (under 120 words unless the user asks for detail), no markdown headings or bullet lists. Refer to exercises by their names, never by exercise_id. Refer to days by weekday name, never by ISO date. You never diagnose, prescribe treatment, or imply medical clearance; for concerning symptoms you refer the user to a qualified professional. Use only the context provided.`;
 
 export class ContextAssembler {
   constructor(private repo: Repo, private memory: MemoryService, private model: TextModel, private library: ExerciseLibrary) {}
@@ -70,7 +70,7 @@ export class ContextAssembler {
     const planned = acts.find((a) => a.source === 'nora');
     const payload: ExplanationPayload = { ...this.base(asOf), plan_today: planned ? { name: planned.name, type: planned.type, subtitle: `${planned.minutes} min` } : null, rest_day: !acts.some((a) => a.source === 'nora') };
     if (result.kind === 'score') payload.readiness = { score: result.score, band: result.band, components: result.components.map((c) => ({ key: c.key, score: Math.round(c.score), detail: c.detail })) };
-    const req: TextRequest = { surface: 'explanation', system: SYSTEM + ' Explain today\'s readiness score in two plain sentences, naming at least two of the contributing signals. No formula jargon.', user: this.render(payload as unknown as Record<string, unknown>), payload: payload as unknown as Record<string, unknown> };
+    const req: TextRequest = { surface: 'explanation', system: SYSTEM + ' Explain today\'s readiness score in at most two short sentences and 200 characters total, naming at least two of the contributing signals. No formula jargon, no lists.', user: this.render(payload as unknown as Record<string, unknown>), payload: payload as unknown as Record<string, unknown> };
     const res = await this.model.complete(req, onToken);
     if (!res.text.trim()) throw new ModelOutputError('empty explanation');
     return res.text.trim();
@@ -89,7 +89,7 @@ export class ContextAssembler {
     };
     const req: TextRequest = {
       surface: 'plan', payload: payload as unknown as Record<string, unknown>,
-      system: SYSTEM + ` Produce a weekly plan as JSON. Rules: use only exercise_id values from the library; never use an exercise whose tags intersect contraindicated_tags; at most days_per_week distinct session dates; every gym session has warmup, main and cooldown phase entries in one exercise list; keep every recurring preference as a standing activity on its preferred day (it does not count as a training day). ${violations.length ? 'The previous attempt violated: ' + violations.join('; ') + '. Fix every violation.' : ''}`,
+      system: SYSTEM + ` Produce a weekly plan as JSON. Rules: use only exercise_id values from the library; never use an exercise whose tags intersect contraindicated_tags; at most days_per_week distinct session dates; every gym session has warmup, main and cooldown phase entries in one exercise list; size the main block to the minutes available — about (minutes_per_session − 15) / 7.5 main exercises (45 min ⇒ 4), plus 1 warm-up and 1 cooldown; keep every recurring preference as a standing activity on its preferred day (it does not count as a training day). ${violations.length ? 'The previous attempt violated: ' + violations.join('; ') + '. Fix every violation.' : ''}`,
       user: this.render(payload as unknown as Record<string, unknown>), jsonSchema: { name: 'weekly_plan', schema: WEEKLY_PLAN_JSON_SCHEMA as unknown as Record<string, unknown> },
     };
     const res = await this.model.complete(req);

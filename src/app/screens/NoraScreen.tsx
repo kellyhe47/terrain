@@ -129,7 +129,7 @@ const bubble = {
   card: { alignSelf: 'flex-start', maxWidth: '92%', width: '92%', backgroundColor: color.surface, borderWidth: 1, borderRadius: radius.md, overflow: 'hidden' },
 } as const;
 
-function UserBubble({ text }: { text: string }) { return <View style={bubble.user}><Body c={color.text1} size={14} lh={21}>{text}</Body></View>; }
+function UserBubble({ text }: { text: string }) { return <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}><View style={[bubble.user, { flexShrink: 1 }]}><Body c={color.text1} size={14} lh={21} style={{ flexShrink: 1 }}>{text}</Body></View></View>; }
 function NoraBubble({ text }: { text: string }) { return <View style={bubble.nora}><Body size={14} lh={21}>{text}</Body></View>; }
 
 function CardHead({ label, c, check }: { label: string; c: string; check?: boolean }) {

@@ -69,13 +69,24 @@ export function GymPlayerScreen({ activityId }: { activityId: string }) {
   const layerX = useRef(0);
   const layerRef = useRef<View>(null);
   const startX = useRef(0);
+  const startY = useRef(0);
+  const layerH = useRef(844);
+  const layerY = useRef(0);
+  const closedAt = useRef(0); // a tap that closed the panel must never double as a tap-to-advance (R80)
   const pan = useMemo(() => PanResponder.create({
     onStartShouldSetPanResponder: () => true,
     onMoveShouldSetPanResponder: () => true,
-    onPanResponderGrant: (e, g) => { const lx = e.nativeEvent.locationX; startX.current = typeof lx === 'number' && !Number.isNaN(lx) ? lx : g.x0 - layerX.current; },
+    onPanResponderGrant: (e, g) => {
+      const lx = e.nativeEvent.locationX, ly = e.nativeEvent.locationY;
+      startX.current = typeof lx === 'number' && !Number.isNaN(lx) ? lx : g.x0 - layerX.current;
+      startY.current = typeof ly === 'number' && !Number.isNaN(ly) ? ly : g.y0 - layerY.current;
+    },
     onPanResponderRelease: (_e, g) => {
+      if (Date.now() - closedAt.current < 500) return;
       if (g.dy < -40 && Math.abs(g.dy) > Math.abs(g.dx)) { setPanel(true); return; }
       if (Math.abs(g.dx) < 12 && Math.abs(g.dy) < 12) {
+        const h = Math.max(1, layerH.current);
+        if (startY.current < 215 || startY.current > h - 90) { setPanel(true); return; } // top overlay / bottom hint: open the set panel
         const frac = startX.current / Math.max(1, layerW.current);
         if (frac < 0.4) back(); else advance();
       }
@@ -119,11 +130,11 @@ export function GymPlayerScreen({ activityId }: { activityId: string }) {
         {!reduceMotion ? <VideoView player={player} style={StyleSheet.absoluteFill} contentFit="cover" nativeControls={false} /> : null}
 
         {/* Gesture layer (R80) */}
-        <View ref={layerRef} {...pan.panHandlers} onLayout={(e) => { layerW.current = e.nativeEvent.layout.width; layerRef.current?.measureInWindow?.((x) => { layerX.current = x; }); }} style={[StyleSheet.absoluteFill, { zIndex: 1 }]} accessibilityLabel="Tap left for previous exercise, right for next, swipe up to log sets" />
+        <View ref={layerRef} {...pan.panHandlers} onLayout={(e) => { layerW.current = e.nativeEvent.layout.width; layerH.current = e.nativeEvent.layout.height; layerRef.current?.measureInWindow?.((x, y) => { layerX.current = x; layerY.current = y; }); }} style={[StyleSheet.absoluteFill, { zIndex: 1 }]} accessibilityLabel="Tap left for previous exercise, right for next, swipe up to log sets" />
 
         {/* Top overlay (R30) */}
-        <Pressable onPress={() => setPanel(true)} style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 2 }}>
-          <LinearGradient colors={['rgba(0,0,0,0.92)', 'rgba(0,0,0,0.78)', 'rgba(0,0,0,0.35)', 'rgba(0,0,0,0)']} locations={[0, 0.4, 0.75, 1]} style={{ paddingTop: 10, paddingHorizontal: 16, paddingBottom: 40 }}>
+        <View pointerEvents="box-none" style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 2 }}>
+          <LinearGradient pointerEvents="box-none" colors={['rgba(0,0,0,0.92)', 'rgba(0,0,0,0.78)', 'rgba(0,0,0,0.35)', 'rgba(0,0,0,0)']} locations={[0, 0.4, 0.75, 1]} style={{ paddingTop: 10, paddingHorizontal: 16, paddingBottom: 40 }}>
             <View style={{ flexDirection: 'row', gap: 4 }}>
               {exercises.map((_, i) => <View key={i} style={{ flex: 1, height: 3, borderRadius: 2, backgroundColor: i < idx ? color.orange : i === idx ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.28)' }} />)}
             </View>
@@ -145,7 +156,7 @@ export function GymPlayerScreen({ activityId }: { activityId: string }) {
               <Text style={{ fontFamily: font.bodySemi, fontSize: 11, letterSpacing: 0.88, textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)' }}>sets logged</Text>
             </View>
           </LinearGradient>
-        </Pressable>
+        </View>
 
         {/* Rest timer (R31) */}
         {rest > 0 ? (
@@ -160,17 +171,17 @@ export function GymPlayerScreen({ activityId }: { activityId: string }) {
 
         {/* Bottom hint (R80) */}
         {!panel ? (
-          <Pressable onPress={() => setPanel(true)} style={{ position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 2 }}>
+          <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 2 }}>
             <LinearGradient colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.8)']} style={{ paddingTop: 26, paddingHorizontal: 16, paddingBottom: 20, alignItems: 'center', gap: 8 }}>
               <Icon name="chevronUp" size={18} color="rgba(255,255,255,0.85)" />
               <Text style={{ fontFamily: font.bodySemi, fontSize: 12, letterSpacing: 0.48, color: 'rgba(255,255,255,0.85)' }}>Slide up to log sets</Text>
             </LinearGradient>
-          </Pressable>
+          </View>
         ) : null}
 
         {/* Scrim */}
         <Animated.View pointerEvents={panel ? 'auto' : 'none'} style={[StyleSheet.absoluteFill, { zIndex: 3, backgroundColor: 'rgba(0,0,0,0.55)', opacity: anim }]}>
-          <Pressable accessibilityLabel="Close set panel" onPress={() => setPanel(false)} style={StyleSheet.absoluteFill} />
+          <Pressable accessibilityLabel="Close set panel" onPress={() => { closedAt.current = Date.now(); setPanel(false); }} style={StyleSheet.absoluteFill} />
         </Animated.View>
 
         {/* Set panel (R31) */}

@@ -27,8 +27,10 @@ export class OpenRouterTextModel implements TextModel {
       const text = await readSse(res, onToken!);
       return { text };
     }
-    const data: any = await res.json();
-    const content: string = data?.choices?.[0]?.message?.content ?? '';
+    const raw = await res.text();
+    let content = '';
+    if (body.stream) content = parseSseText(raw); // React Native's fetch buffers the whole SSE body
+    else { try { content = JSON.parse(raw)?.choices?.[0]?.message?.content ?? ''; } catch { throw new ModelUnavailableError('non-JSON response'); } }
     if (onToken) for (const chunk of chunkText(content)) onToken(chunk);
     if (req.jsonSchema) {
       try { return { text: content, json: JSON.parse(content) }; } catch { throw new ModelUnavailableError('non-JSON response'); }
@@ -50,6 +52,11 @@ async function readSse(res: Response, onToken: (c: string) => void): Promise<str
       try { const delta = JSON.parse(data)?.choices?.[0]?.delta?.content; if (delta) { out += delta; onToken(delta); } } catch { /* keepalive */ }
     }
   }
+  return out;
+}
+function parseSseText(raw: string): string {
+  let out = '';
+  for (const line of raw.split('\n')) { const l = line.trim(); if (!l.startsWith('data:')) continue; const d = l.slice(5).trim(); if (d === '[DONE]') continue; try { out += JSON.parse(d)?.choices?.[0]?.delta?.content ?? ''; } catch { /* keepalive */ } }
   return out;
 }
 export function chunkText(s: string, n = 6): string[] { const out: string[] = []; for (let i = 0; i < s.length; i += n) out.push(s.slice(i, i + n)); return out; }
