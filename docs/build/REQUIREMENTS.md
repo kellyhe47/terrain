@@ -20,7 +20,7 @@ Status: ✅ implemented · ⚠️ implemented with a recorded decision · ❌ re
 | R17–R18 | `domain/plan.ts` schema + rails, `planService.generateValidated` re-prompt | ✅ | 05 |
 | R18a | standing activities excluded from the day count | ✅ | 05 counts |
 | R19 | cooldown phase in every gym session (planner, seed, player) | ✅ | 05 must_include |
-| R20 | Form video button → `FormVideoScreen` (inline YouTube embed, cue, targets, equipment, form points) | ✅ | |
+| R20 | Form video button → `FormVideoScreen` (YouTube plays inline on open, cue, targets, equipment, form points) | ✅ | |
 | R21 | injury memory → contraindicated tags in every generation | ✅ | 10 |
 | R22 | `seed/exerciseLibrary.ts` — 59 exercises: contraindication tags, muscle groups, equipment, venues, cues, form points, YouTube ids | ✅ | `exerciseLibrary.test.ts`; all 59 videos audited (see `.qa/exercise-library.md`) |
 | R23 | Generate my week on an empty week; patches via chat | ✅ | Nora-initiated proposals arrive as patch cards in reply to context |
@@ -30,7 +30,7 @@ Status: ✅ implemented · ⚠️ implemented with a recorded decision · ❌ re
 | R27 | Reschedule = date picker, no model call | ✅ | |
 | R28 | Ask Nora to change → chat; Apply through the rails | ✅ | `planService.test.ts` |
 | R29 | empty / regenerating / empty-day copy | ✅ | |
-| R30–R35, R80–R82 | `GymPlayerScreen` (video, gestures, set panel, rest 90 s, end/exit sheets, results) | ✅ | |
+| R30–R35, R80–R82 | `GymPlayerScreen` (per-exercise YouTube background loop — muted, cover-cropped, graded per design; bundled loop as the offline fallback — gestures, set panel, rest 90 s, end/exit sheets, results) | ✅ | iOS simulator pass, `.qa/exercise-library.md` |
 | R36–R39 | `domain/sprint.ts`, `SprintPlayerScreen` | ✅ | |
 | R40–R42 | activity sheet Mark done / I did it / Confirm skipped; contributes to statuses, context, progress | ✅ | |
 | R43–R43a | `NoraScreen`, patch card states | ✅ | |

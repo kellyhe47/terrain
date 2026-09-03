@@ -3,20 +3,20 @@
   "estimate": {
     "items": [
       {
-        "name": "Pan-seared sliced chicken breast",
-        "portion_estimate": "~170 g",
-        "calories_est": 320,
-        "protein_g": 52,
+        "name": "Grilled/roasted chicken breast (sliced)",
+        "portion_estimate": "~170 g (1 medium breast)",
+        "calories_est": 280,
+        "protein_g": 53,
         "carbs_g": 0,
-        "fat_g": 11
+        "fat_g": 6
       },
       {
-        "name": "Creamy risotto (Parmesan/cream)",
-        "portion_estimate": "~1 cup (230 g)",
-        "calories_est": 380,
-        "protein_g": 11,
-        "carbs_g": 46,
-        "fat_g": 14
+        "name": "Creamy orzo/risotto (cheese & cream)",
+        "portion_estimate": "~1.25 cups (≈300 g)",
+        "calories_est": 480,
+        "protein_g": 14,
+        "carbs_g": 54,
+        "fat_g": 24
       }
     ],
     "confidence": "medium"

@@ -9,7 +9,7 @@ import { Body, Display, Label, Semi, Small } from '../ui/text';
 import { Btn } from '../ui/primitives';
 import { Icon } from '../ui/icons';
 import { StatusBarFake } from '../ui/frame';
-import { YouTubeEmbed } from '../ui/YouTubeEmbed';
+import { ExerciseVideo } from '../ui/ExerciseVideo';
 import { label } from '../../seed/exerciseLibrary';
 
 function Tag({ text, strong }: { text: string; strong?: boolean }) {
@@ -52,13 +52,7 @@ export function FormVideoScreen({ exerciseId }: { exerciseId: string }) {
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32, gap: 18 }}>
         {ex ? (
           <>
-            <YouTubeEmbed
-              embedUrl={ex.videoEmbedUrl}
-              thumbnailUrl={ex.thumbnailUrl}
-              watchUrl={ex.videoUrl}
-              name={ex.name}
-              onOpenExternal={openExternal}
-            />
+            <ExerciseVideo videoId={ex.videoId} thumbnailUrl={ex.thumbnailUrl} />
 
             <Body>
               <Semi c={color.orange}>Nora: </Semi>

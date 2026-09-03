@@ -2,7 +2,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { VideoView, useVideoPlayer } from 'expo-video';
 import { useTerrain } from '../state';
 import { useNav } from '../nav';
 import { useReduceMotion } from '../hooks';
@@ -12,7 +11,7 @@ import { Display, Numeral, Semi, Tiny } from '../ui/text';
 import { Btn } from '../ui/primitives';
 import { Icon } from '../ui/icons';
 import { StatusBarFake } from '../ui/frame';
-import { media } from '../ui/assets';
+import { ExerciseVideo } from '../ui/ExerciseVideo';
 
 const sessionCache = new Map<string, { idx: number; done: Record<string, boolean>; vals: Record<string, { w: number; r: number }>; elapsed: number; rest: number }>();
 import { EndSheet, ExitSheet, fmtClock } from './player/sheets';
@@ -40,9 +39,6 @@ export function GymPlayerScreen({ activityId }: { activityId: string }) {
   const [panel, setPanel] = useState(false);
   const [sheet, setSheet] = useState<null | 'exit' | 'end'>(null);
 
-  // Video background (R30, R81).
-  const player = useVideoPlayer(media.gymLoop, (p) => { p.loop = true; p.muted = true; p.play(); });
-  useEffect(() => { try { if (reduceMotion) player.pause(); else player.play(); } catch {} }, [reduceMotion, player]);
 
   // Clock + rest timer tick, paused while a sheet is open (design behaviour).
   useEffect(() => {
@@ -127,7 +123,8 @@ export function GymPlayerScreen({ activityId }: { activityId: string }) {
     <View style={{ flex: 1, backgroundColor: '#000' }}>
       <StatusBarFake light />
       <View style={{ flex: 1, position: 'relative', overflow: 'hidden', backgroundColor: '#000' }}>
-        {!reduceMotion ? <VideoView player={player} style={StyleSheet.absoluteFill} contentFit="cover" nativeControls={false} /> : null}
+        {/* Video background (R30, R81): the current exercise's own demonstration, streamed from YouTube. */}
+        {cur?.lib ? <ExerciseVideo videoId={cur.lib.videoId} thumbnailUrl={cur.lib.thumbnailUrl} background paused={reduceMotion} /> : null}
 
         {/* Gesture layer (R80) */}
         <View ref={layerRef} {...pan.panHandlers} onLayout={(e) => { layerW.current = e.nativeEvent.layout.width; layerH.current = e.nativeEvent.layout.height; layerRef.current?.measureInWindow?.((x, y) => { layerX.current = x; layerY.current = y; }); }} style={[StyleSheet.absoluteFill, { zIndex: 1 }]} accessibilityLabel="Tap left for previous exercise, right for next, swipe up to log sets" />

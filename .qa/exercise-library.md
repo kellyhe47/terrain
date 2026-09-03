@@ -17,11 +17,40 @@ _Run 2026-09-02. Every claim below was checked against YouTube, not asserted._
 4. **Does inline playback actually work in the app?** Verified end-to-end on web: the Form video
    screen shows the YouTube poster frame, and tapping play streams the video inside the app.
 
+## iOS simulator pass (2026-09-03)
+
+Run on a booted iPhone 17 (iOS 26.5) through Expo Go. `react-native-webview` loads fine in Expo Go.
+Playback did **not** work at first, and the cause was the HTTP referrer YouTube sees:
+
+| WebView setup | Referrer YouTube sees | Result |
+| --- | --- | --- |
+| `source={{ uri: 'https://www.youtube.com/embed/…' }}` | none | **error 153** |
+| `source={{ html, baseUrl: 'https://www.youtube.com' }}` | youtube.com | **error 152** |
+| `source={{ uri }}` + `headers: { Referer: 'https://www.youtube.com/' }` | youtube.com | **error 152** |
+| `source={{ html, baseUrl: 'https://terrain.app' }}` | an ordinary third-party origin | **plays** |
+
+So the embed must be framed inside our own document whose `baseUrl` is a normal https origin that is
+not youtube.com. `EMBED_ORIGIN` in `src/app/ui/ytPlayer.tsx` carries that; changing it back to either
+of the failing values breaks playback silently, which is why the finding is recorded in that file too.
+
+Two further fixes came out of the same pass:
+- **Auto-captions** rendered over the ambient background (and the cover-crop scaled them to fill the
+  screen). `cc_load_policy=0` only sets the default; `unloadModule('captions')`/`('cc')` is what
+  actually keeps them off.
+- Web was never affected by any of this: a browser page already has a real origin.
+
+## Known limitation — video content, not plumbing
+
+The library points at instructional YouTube videos, so the ambient background opens on whatever the
+video opens on: a branded title card, an intro, sometimes a talking head. The design's background was
+purpose-shot B-roll, so this reads busier than the mock and competes with the overlaid copy. The
+plumbing is right; the content is not ideal. Options, none of them free: curate a per-exercise start
+offset (a `startSec` field), swap to short loop-friendly clips, or keep B-roll behind the player and
+use YouTube only on the Form video screen.
+
 ## Not verified
 
-Native (iOS/Android) inline playback goes through `react-native-webview`, which is a peer dependency
-of `expo` and ships inside Expo Go — but it was **not** exercised on a device or simulator in this
-session. Worth a pass on a phone before shipping.
+Android. Only iOS was exercised.
 
 ## The library
 
