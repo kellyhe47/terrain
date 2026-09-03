@@ -79,7 +79,7 @@ function templates(goal: string, sprintDay: boolean): Template[] {
 export function fakePlan(p: PlanPayload): unknown {
   const intake = p.intake!; const tier = TIER[intake.equipment] ?? 'gym';
   const bad = new Set(p.contraindicated_tags);
-  const eligible = p.library.filter((e) => e.equipment.includes(tier) && !e.tags.some((t) => bad.has(t)));
+  const eligible = p.library.filter((e) => e.venues.includes(tier) && !e.tags.some((t) => bad.has(t)));
   const recurringDays = new Set(intake.recurring.map((r) => r.preferred_day));
   const days = DAY_ORDER.filter((d) => !recurringDays.has(d)).slice(0, intake.days_per_week);
   const sprintDay = intake.days_per_week >= 3 && intake.activities.some((a) => /sprint|running/i.test(a)) && intake.goal !== 'Endurance';

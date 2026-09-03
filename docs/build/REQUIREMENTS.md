@@ -20,9 +20,9 @@ Status: ✅ implemented · ⚠️ implemented with a recorded decision · ❌ re
 | R17–R18 | `domain/plan.ts` schema + rails, `planService.generateValidated` re-prompt | ✅ | 05 |
 | R18a | standing activities excluded from the day count | ✅ | 05 counts |
 | R19 | cooldown phase in every gym session (planner, seed, player) | ✅ | 05 must_include |
-| R20 | Form video button → `FormVideoScreen` (demo loop + library URL) | ✅ | |
+| R20 | Form video button → `FormVideoScreen` (inline YouTube embed, cue, targets, equipment, form points) | ✅ | |
 | R21 | injury memory → contraindicated tags in every generation | ✅ | 10 |
-| R22 | `seed/exerciseLibrary.ts` (tags, cues, video URLs) | ✅ | |
+| R22 | `seed/exerciseLibrary.ts` — 59 exercises: contraindication tags, muscle groups, equipment, venues, cues, form points, YouTube ids | ✅ | `exerciseLibrary.test.ts`; all 59 videos audited (see `.qa/exercise-library.md`) |
 | R23 | Generate my week on an empty week; patches via chat | ✅ | Nora-initiated proposals arrive as patch cards in reply to context |
 | R24–R24c | `domain/calendar.ts` status derivation, subtitles, sources, skip as a user action | ✅ | `calendar.test.ts` |
 | R25 | past unlogged stays pending with the log prompt | ✅ | |

@@ -83,7 +83,7 @@ export class ContextAssembler {
     const payload: PlanPayload = {
       ...base, week_start: weekStartDate, week_dates: weekDays(weekStartDate),
       contraindicated_tags: this.memory.activeContraindicatedTags(),
-      library: this.library.all().map((e) => ({ id: e.id, name: e.name, pattern: e.pattern, tags: e.tags, equipment: e.equipment, phases: e.phases, start_weight_lb: e.startWeightLb, reps: e.reps, sets: e.sets })),
+      library: this.library.all().map((e) => ({ id: e.id, name: e.name, pattern: e.pattern, tags: e.tags, venues: e.venues, muscles: e.muscles.primary, phases: e.phases, start_weight_lb: e.startWeightLb, reps: e.reps, sets: e.sets })),
       violations,
       readiness_recent: Array.from({ length: 7 }, (_, i) => { const d = addDays(today, -i); const r = readinessFor(this.repo, d); return { date: d, score: r.kind === 'score' ? r.score : null }; }),
     };
